@@ -265,7 +265,8 @@ sub BattleArena
 	my $NotAbort = -1;
 	while (($AddedBots < 3) && $NotAbort)
 	{
-		my $selectwarrior = $d->fselect( title => "Select Your or Other Player Bots:", path => "/sbbs/doors/corewar/players/$UserName" );
+		#my $selectwarrior = $d->fselect( title => "Select Your or Other Player Bots:", path => "/sbbs/doors/corewar/players/$UserName" );
+		my $selectwarrior = $d->fselect( title => "Select Your or Other Player Bots:", path => "/sbbs/doors/corewar/players/" );
 		$selectwarrior =~ s/\s+/_/g;
 		$selectwarrior =~ s/</_/g;
 		$selectwarrior =~ s/>/_/g;

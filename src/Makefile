@@ -72,5 +72,5 @@ install:
 	cp pmars /sbbs/doors/corewar/
 	cp corewar.pl /sbbs/doors/corewar/
 	cp ../README_BBS.md ../README_BBS.pdf /sbbs/doors/corewar
-
+	touch /sbbs/doors/corewar/stats.txt
 
