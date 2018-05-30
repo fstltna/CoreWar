@@ -1,0 +1,607 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0054)http://www.ecst.csuchico.edu/~pizza/koth/chapter1.html -->
+<HTML><HEAD><TITLE>MFCWB: Chapter One</TITLE>
+<META content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<META content="MSHTML 5.00.2314.1000" name=GENERATOR></HEAD>
+<BODY>
+<CENTER>
+<H1>MY FIRST COREWAR BOOK<BR>by Steven Morrell</H1></CENTER>
+<HR>
+
+<CENTER>
+<H2>PREFACE</H2></CENTER>
+<HR>
+This book is an introductory collection of corewar warriors with commentary. It 
+assumes an acquaintance with the ICWS '88 redcode language (See M.Durham's <A 
+href="ftp://ftp.csua.berkeley.edu/pub/corewar/documents/tutorial.1.Z">tutorial.1</A> 
+and <A 
+href="ftp://ftp.csua.berkeley.edu/pub/corewar/documents/tutorial.2.Z">tutorial.2</A> 
+for details). Unless otherwise noted, all redcode is written in ICWS '88 and is 
+designed for a coresize of 8000, process limit 8000. All documents referred to 
+in this text are available by anonymous FTP at <A 
+href="ftp:ftp.csua.berkeley.edu/pub/corewar/documents/">ftp.csua.berkeley.edu</A> 
+in one of the subdirectories of pub/corewar/. 
+<P>After a brief introduction, each chapter presents warriors by subject. I then 
+pontificate on the merits of these various warriors and give some hints for 
+successful implementation. I mention credits and give references to other 
+warriors worth further investigation. Unless otherwise indicated, these warriors 
+are archived in <A 
+href="ftp://ftp.csua.berkeley.edu/pub/corewar/redcode/warrior10.tar.Z">warrior10.tar</A> 
+in the redcode/ directory. 
+<P>The presentation of each warrior follows roughly the same format. First, the 
+parameters of the warrior are given. These include the name, author, attack 
+speed, effective size, durability, and effectiveness, and score against the <A 
+href="http://www.ecst.csuchico.edu/~pizza/koth/">Pizza Hill</A>. The effective 
+size is the size of the executing code during the attack phase, taking into 
+account regenerative code. Next, self-contained source code is given, followed 
+by a brief description of the warrior. Finally, a detailed technical description 
+of how the warrior runs is given. 
+<P>I hope that this helps. If you have questions or comments, send them to <A 
+href="mailto:morrell@math.utah.edu">morrell@math.utah.edu</A>, where you can 
+reach me until June,1994. 
+<P>Steven Morrell 
+<P>
+<HR>
+
+<CENTER>
+<H3>Chapter 1: Imp-Rings</H3></CENTER>
+<HR>
+On October 14, 1992, A.Ivner posted a warrior that revolutionized the game of 
+corewar. "The IMPire strikes back" scored about 170 on the Intel hill and only 
+suffered 10% losses, putting it firmly in first place. A.Ivner had invented a 
+way to kill other programs with imps -- the world's first imp-ring. D.Nabutovsky 
+improved the launch code a bit by making an imp-spiral and adding a stone in his 
+"Impressive", which lost only 2% and scored 195 when it started on the hill (for 
+more information on stones, see <A 
+href="http://www.ecst.csuchico.edu/~pizza/koth/chapter2.html">chapter 2</A>). 
+Since that time, most warriors on the hill have either been imps or something 
+hostile to imps. 
+<P>This chapter deals with imps, from the basic imp proposed by A.K.Dewdney in 
+the original Scientific American articles to the modern-day imp-spiral we see as 
+a component of many successful warriors. 
+<HR>
+
+<H4>--1--</H4><PRE>Name:           Wait
+Speed:          None
+Size:           1
+Durability:     Strong
+Effectiveness:  None
+Score:
+
+wait JMP wait
+end wait</PRE>Wait is the simplest warrior. Its small size makes it difficult to 
+locate. However, it has no attack, so it only wins if the enemy program 
+self-destructs. We shall be using this program for fodder. 
+<HR>
+
+<H4>--2--</H4><PRE>Name:           Imp
+Author:         A.K.Dewdney
+Speed:          100% of c (sequential)
+Size:           1
+Durability:     Strong
+Effectiveness:  Poor
+Score:
+
+imp MOV imp, imp+1
+end imp</PRE>Imp presents the enemy with a small, moving target that will not 
+die without a direct hit. It ties a lot, and is vulnerable to the imp-gate. (<A 
+href="http://www.ecst.csuchico.edu/~pizza/koth/chapter1.html#impgate">See 
+program 3</A>) 
+<P>HOW IT WORKS: When Imp is loaded and before it executes, it looks like this: <PRE>MOV 0,1  (1)</PRE>(The (1) shows which instruction will execute on the 
+first cycle.) When process (1) executes, it first copies its instruction to the 
+next address and then moves to the next instruction: <PRE>MOV 0,1       ;This is the original.
+MOV 0,1  (2)  ;This is the copy.</PRE>Process (2) now executes. Since all 
+addressing is relative, the process copies its instruction to the next address 
+and advances. <PRE>MOV 0,1
+MOV 0,1
+MOV 0,1  (3)  ;This is the second copy.</PRE>And so it goes, overwriting 
+anything in its path with MOV 0,1 instructions. So when it encounters enemy 
+code, it replaces the enemy code with MOV 0,1 instructions, turning the enemy 
+processes into imps. Note that although the enemy code is gone, the enemy 
+processes live on, so imps do not win unless the enemy code self-destructs. 
+<HR>
+
+<H4><A name=impgate>--3--</A></H4><PRE>Name:           Imp Gate
+Speed:          None
+Size:           1
+Durability:     Strong
+Effectiveness:  Excellent against imps, Extremely Poor against others
+Score:
+
+gate equ wait-10
+wait JMP wait,&lt;gate
+end wait</PRE>Imp Gate waits and destroys imps that happen to pass 10 
+instructions before it. It is seldom overrun by imps and its small size makes it 
+difficult to locate. The imp gate is defensive by nature, and will not win 
+against a stationary enemy unless this enemy self-destructs. 
+<P>HOW IT WORKS: The process running at _wait_ jumps to the A-value of this 
+command, i.e. back to _wait_. However, it also decrements the B-field of _gate_. 
+Thus, the B-field of _gate_ is decremented every turn. When an enemy imp comes 
+by this is what happens: <PRE>MOV 0,1   (x)  ;here comes the imp
+DAT 0,-5       ;here is the gate
+
+The imp copies itself and advances onto the gate:
+
+MOV 0,1
+MOV 0,1   (x+1)  ;here is the gate</PRE>The gate decrements: <PRE>MOV 0,1
+MOV 0,0   (x+1)  ;here is the gate</PRE>The imp copies this instruction to 
+itself (effectively doing nothing) and advances, falling off the end: <PRE>MOV 0,1
+MOV 0,0        ;here is the gate
+          (x+2)</PRE>The gate decrements again (but the damage has already been 
+done.) <PRE>MOV 0,1
+MOV 0,-1       ;here is the gate
+          (x+2)</PRE>The enemy process executes an illegal instruction and dies. 
+
+<HR>
+
+<H4>--4--</H4><PRE>Name:           Worm
+Speed:          25% of c (linear)
+Size:           1.75
+Durability:     Very Strong
+Effectiveness:  Poor
+Score:
+
+launch SPL b
+       SPL ab
+aa     JMP imp
+ab     JMP imp+1
+b      SPL bb
+ba     JMP imp+2
+bb     JMP imp+3
+imp    MOV imp,imp+1
+end launch</PRE>Worm is a symbiotic collection of imps. The only vulnerable 
+parts of the worm is the tail instruction and the instruction about to execute, 
+hence the effective size of 1.75 (25% of the time, the tail instruction is the 
+instruction about to execute.) It is very difficult to kill, because each imp 
+must be disposed of individually. However, it is still vulnerable to imp gates. 
+As with Imp, Worm overwrites enemy code but preserves enemy processes. 
+<P>HOW IT WORKS: First, we launch the worm using a binary launch: <PRE>SPL 4,0  (1)
+SPL 2,0
+JMP 5,0
+JMP 5,0
+SPL 2,0
+JMP 4,0
+JMP 4,0
+MOV 0,1</PRE>The first process splits into processes (2) and (3): <PRE>SPL 4,0
+SPL 2,0  (2)
+JMP 5,0
+JMP 5,0
+SPL 2,0  (3)
+JMP 4,0
+JMP 4,0
+MOV 0,1</PRE>Process (2) splits into processes (4) and (5): <PRE>SPL 4,0
+SPL 2,0
+JMP 5,0  (4)
+JMP 5,0  (5)
+SPL 2,0  (3)
+JMP 4,0
+JMP 4,0
+MOV 0,1</PRE>Process (3) splits: <PRE>SPL 4,0
+SPL 2,0
+JMP 5,0  (4)
+JMP 5,0  (5)
+SPL 2,0
+JMP 4,0  (6)
+JMP 4,0  (7)
+MOV 0,1</PRE>Process (4) jumps: <PRE>SPL 4,0
+SPL 2,0
+JMP 5,0
+JMP 5,0  (5)
+SPL 2,0
+JMP 4,0  (6)
+JMP 4,0  (7)
+MOV 0,1  (8)</PRE>Processes (5), (6) and (7) jump: <PRE>SPL 4,0
+SPL 2,0
+JMP 5,0
+JMP 5,0
+SPL 2,0
+JMP 4,0
+JMP 4,0
+MOV 0,1  (8)
+         (9)
+         (10)
+         (11)</PRE>The worm will now start crawling though memory. Note that if 
+processes (9), (10) or (11) executed right now, they would execute an illegal 
+instruction and die. But process (8) executes, copying the MOV instruction to 
+where process (9) is going to execute: <PRE>SPL 4,0
+SPL 2,0
+JMP 5,0
+JMP 5,0
+SPL 2,0
+JMP 4,0
+JMP 4,0
+MOV 0,1
+MOV 0,1  (9) (12)
+         (10)
+         (11)</PRE>Now process (9) executes, copying the MOV instruction to 
+process (10). <PRE>SPL 4,0
+SPL 2,0
+JMP 5,0
+JMP 5,0
+SPL 2,0
+JMP 4,0
+JMP 4,0
+MOV 0,1
+MOV 0,1  (12)
+MOV 0,1  (10) (13)
+         (11)</PRE>And after (10) and (11) have executed, the worm has crawled 
+forward an instruction, leaving a slimy MOV 0,1 trail behind. <PRE>SPL 4,0
+SPL 2,0
+JMP 5,0
+JMP 5,0
+SPL 2,0
+JMP 4,0
+JMP 4,0
+MOV 0,1
+MOV 0,1  (12)
+MOV 0,1  (13)
+MOV 0,1  (14)
+MOV 0,1  (15)</PRE>
+<HR>
+
+<H4>--5--</H4><PRE>Name:           Ring
+Speed:          100% of c (mostly linear)
+Size:           1
+Durability:     Average
+Effectiveness:  Fair
+Score:
+
+c      JMP imp-2666
+launch SPL c
+       SPL imp+2667
+imp    MOV 0,2667
+end launch</PRE>Ring is a symbiotic collection of three imps distributed through 
+core. It has the capability to destroy enemy processes it overruns, if the enemy 
+is running only one or two processes. This code will run correctly only in a 
+coresize of 8000, although the constants may be tweaked to run in any coresize 
+not divisible by 3. Ring is an example of a 3-pt imp. 
+<P>HOW IT WORKS: The launching code is a very small binary startup: <PRE>JMP -2663,   0
+SPL     0,   0  (1)
+SPL  2668,   0
+MOV     0,2667</PRE>The first process splits: <PRE>JMP -2663,   0  (3)
+SPL     0,   0
+SPL  2668,   0  (2)
+MOV     0,2667</PRE>The second process splits: <PRE>JMP -2663,   0  (3)
+SPL     0,   0
+SPL  2668,   0
+MOV     0,2667  (4)
+...
+                (5)  ;this location is 2667 instructions after the imp</PRE>The 
+third process jumps: <PRE>MOV 0,2667  (4)
+...
+            (5)  ;this location is 2667 instructions after the imp
+...
+            (6)  ;this location is 2667 instructions after process (2)</PRE>Now 
+the fun begins. Process (4) executes, copying the imp instruction to process (5) 
+and becoming process (7): <PRE>MOV 0,2667
+            (7)
+...
+MOV 0,2667  (5)
+...
+            (6)</PRE>(5) executes, copying the imp instruction to process (6): <PRE>MOV 0,2667
+            (7)
+...
+MOV 0,2667
+            (8)
+...
+MOV 0,2667  (6)</PRE>And now (6) executes, copying the imp instruction back to 
+process (7): <PRE>MOV 0,2667
+MOV 0,2667  (7)
+...
+MOV 0,2667
+            (8)
+...
+MOV 0,2667
+            (9)</PRE>The cycle starts all over again, and the ring creeps 
+forward. 
+<P>Let's see what happens when Ring fights Wait (Program 1). Wait executes JMP 
+0,0 until eventually Ring overwrites this instruction with MOV 0,2667. <PRE>MOV 0,2667  (1)</PRE>Wait executes this instruction and advances: <PRE>MOV 0,2667
+            (2)</PRE>Since Ring takes 3 cycles to move the next command into 
+place, Wait's process now executes an illegal instruction and dies. 
+<P>So Ring slowly advances through core, and if the enemy is running a single 
+process, it falls off the end of the imp ring. 
+<HR>
+
+<H4>--6--</H4><PRE>Name:           Spiral
+Speed:          37.5% of c (mostly linear)
+Size:           1.875
+Durability:     Very Strong
+Effectiveness:  Fair
+Score:
+
+step equ 2667
+launch  SPL 8
+        SPL 4
+        SPL 2
+        JMP imp
+        JMP imp+step
+        SPL 2
+        JMP imp+(step*2)
+        JMP imp+(step*3)
+        SPL 4
+        SPL 2
+        JMP imp+(step*4)
+        JMP imp+(step*5)
+        SPL 2
+        JMP imp+(step*6)
+        JMP imp+(step*7)
+imp     MOV 0,step
+end launch</PRE>Spiral crosses the durability of a worm with the effectiveness 
+of a ring. Spiral is resistant to most conventional attacks, and since it is an 
+8-process imp-ring, it kills any enemy it overwrites if the enemy has less than 
+8 processes running. The only vulnerable parts of the spiral are the tail and 
+the process that is currently running. Spiral is vulnerable to imp gates, 
+however. 
+<P>HOW IT WORKS: After a binary launch, the processes are arranged as follows: <PRE>MOV 0,2667  (16)
+            (19) ;this process is 2667 instructions after process (18)
+            (22)
+...
+            (17) ;this process is 2667 instructions after process (16)
+            (20)
+            (23)
+...
+            (18) ;this process is 2667 instructions after process (17)
+            (21)</PRE>Now the spiral worms along: (16) copies the imp to (17), 
+which copies it to (18), and so on. All the processes advance 1 instruction as 
+this happens, and then the imp-passing instructions begin again. 
+<P>A step-by step analysis of how imp gates destroy spirals would be lengthy and 
+unnecessarily complicated. The key idea is this: The imp gate is constantly 
+being modified. As the imp overruns the imp gate, no imp instructions are left 
+intact to copy to the next processes' location. This next process executes an 
+illegal instruction and dies. This scenario repeats until the entire spiral 
+moves through the imp gate and disintegrates. 
+<HR>
+
+<H4>--7--</H4><PRE>Name:           Gate Crashing Spiral
+Speed:          12.5% of c (mostly linear)
+Size:           5.875
+Durability:     Very Strong
+Effectiveness:  Good
+Score:
+
+step1 equ 2667
+step2 equ 2668
+start    SPL lnch1
+         SPL lnch3
+         
+lnch2    SPL 8
+         SPL 4
+         SPL 2
+         JMP imp2+(step2*0)
+         JMP imp2+(step2*1)
+         SPL 2
+         JMP imp2+(step2*2)
+         JMP imp2+(step2*3)
+         SPL 4
+         SPL 2
+         JMP imp2+(step2*4)
+         JMP imp2+(step2*5)
+         SPL 2
+         JMP imp2+(step2*6)
+         JMP imp2+(step2*7)
+         
+lnch3    SPL 8
+         SPL 4
+         SPL 2
+         JMP imp3+(step2*0)
+         JMP imp3+(step2*1)
+         SPL 2
+         JMP imp3+(step2*2)
+         JMP imp3+(step2*3)
+         SPL 4
+         SPL 2
+         JMP imp3+(step2*4)
+         JMP imp3+(step2*5)
+         SPL 2
+         JMP imp3+(step2*6)
+         JMP imp3+(step2*7)
+         
+lnch1    SPL 8
+         SPL 4
+         SPL 2
+         JMP imp1+(step1*0)
+         JMP imp1+(step1*1)
+         SPL 2
+         JMP imp1+(step1*2)
+         JMP imp1+(step1*3)
+         SPL 4
+         SPL 2
+         JMP imp1+(step1*4)
+         JMP imp1+(step1*5)
+         SPL 2
+         JMP imp1+(step1*6)
+         JMP imp1+(step1*7)
+         
+imp1     MOV 0,step1
+         DAT #0
+         DAT #0
+         DAT #0
+imp2     MOV 0,step2
+         MOV 0,step2
+imp3     MOV 0,step2
+         MOV 0,step2
+end start</PRE>Gate Crashing Spiral is a collection of three spirals that work 
+together to kill imp gates. The first is a standard imp spiral and the other two 
+are slightly modified, interleaved for greater protection against split bombs. 
+The large size of its launch code makes it vulnerable to fast attacks. 
+<P>HOW IT WORKS: Each spiral has its own binary launch. The first spiral 
+launches first and crawls forward an instruction by the time the other two 
+spirals have launched. Core then looks like this (after resetting the counter 
+for clearer exposition): <PRE>MOV 0,2667       ;This is label imp1 | MOV 0,2667       | MOV 0,2667
+MOV 0,2667  (17)                     | MOV 0,2667  (18) | MOV 0,2667  (19)
+MOV 0,2667  (20)                     | MOV 0,2667  (21) | MOV 0,2667  (22)
+DAT #0,#0   (23)                     |             (24) |
+MOV 0,2668   (1) ;This is label imp2 |                  |
+MOV 0,2668                           |              (2) |
+MOV 0,2668   (9) ;This is label imp3 |                  |              (3)
+MOV 0,2668                           |             (10) |
+             (4)                     |                  |             (11)
+                                     |              (5) |
+            (12)                     |                  |              (6)
+                                     |             (13) |
+             (7)                     |                  |             (14)
+                                     |              (8) |
+            (15)                     |                  |
+                                     |             (16) |</PRE>The imps then 
+move forward via the usual instruction juggling. 
+<P>When a gate crashing spiral overruns a gate, the second or third spirals hit 
+first: <PRE>MOV 0,2668  (x) ;imp gate here</PRE>The gate decrements: <PRE>MOV 0,2667  (x)</PRE>The wounded spiral copies this instruction 2667 ahead: 
+<PRE>MOV 0,2667
+            (x+24)
+...
+MOV 0,2667</PRE>The second and third spirals now fall off the end and die, and 
+then the first spiral hits the gate: <PRE>MOV 0,2667  (y) ;imp gate here
+...
+MOV 0,2667  (y+1)</PRE>The gate decrements: <PRE>MOV 0,2666  (y)
+...
+MOV 0,2667  (y+1)</PRE>Process (y) executes, and can't copy the imp to process 
+(y+1), but this is okay, because process (y+1) executes the imp instruction from 
+the two spirals gone before. The spiral crawls through the gate and goes on to 
+kill the enemy processes. 
+<HR>
+
+<H4>--8--</H4><PRE>Name:           Nimbus Spiral
+Speed:          50% of c (somewhat linear)
+Size:           1.992
+Durability:     Very Strong
+Effectiveness:  Fair
+Score:
+
+step equ 127
+imp    MOV 0,step
+launch SPL 1     ;1 process
+       SPL 1     ;2 processes
+       SPL 1     ;4 processes
+       SPL 1     ;8 processes
+       SPL 1     ;16 processes
+       MOV -1,0  ;32 processes
+       SPL 1     ;63 processes
+       SPL 2     ;126 processes
+spread JMP @spread,imp
+       ADD #step,spread
+end launch</PRE>Nimbus Spiral launches a 63-point spiral with two processes per 
+point. Because a binary launch would exceed the 100-instruction limit, Nimbus 
+Spiral uses what is called a Nimbus-type launch. The code for this type of 
+launch is obviously smaller, but the time it takes to launch spirals is roughly 
+doubled. 
+<P>HOW IT WORKS: Each SPL 1 command doubles the number of processes acting in 
+tandem at the next instruction. The first process that executes the MOV -1,0 
+command does not split, but all subsequent processes execute a SPL 1 command. 
+Hence, before execution of the SPL 2 command, core looks like this (with counter 
+reset): <PRE>MOV 0,127
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 2,0      (1)-(126)
+JMP @0,-9
+ADD #127,-1</PRE>After execution of the SPL 2 command: <PRE>MOV 0,127
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 2,0
+JMP @0,-9    Odd processes
+ADD #127,-1  Even processes</PRE>We reset the processes again. Process (1) now 
+executes, jumping to the location of the B-operand of the JMP instruction: <PRE>MOV 0,127    (253)   ;this came from process (1)
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 2,0
+JMP @0,-9    Odd processes greater than 1
+ADD #127,-1  Even processes</PRE>Process (2) now executes, adding 127 to the 
+B-operand of the JMP instruction: <PRE>MOV 0,127    (253)
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 2,0
+JMP @0,118   Odd processes greater than 1
+ADD #127,-1  Even processes greater than 2
+             (254)                   ;this came from process (2)</PRE>And it 
+continues. Process (3) jumps to a new location. The even processes modify the 
+jump vector, and the odd processes do all of the jumping. By the time process 
+(127) is ready to execute, we have the following situation: <PRE>MOV 0,127    (253)
+SPL 1,0      (379)
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 1,0
+SPL 2,0
+JMP @0,-134
+ADD #127,-1
+             Even processes
+...
+Odd processes broadcast throughout core</PRE>The odd processes form an imp 
+spiral and the even processes execute illegal instructions and die, leaving just 
+the spiral to crawl through memory. 
+<HR>
+
+<CENTER>
+<H3>--Conclusion--</H3></CENTER>
+<HR>
+Two questions beg to be answered: When should you add an imp to your favorite 
+warrior, and how do you kill imps? 
+<P>Most of today's fighters have some resistance to imps, so pure imp programs 
+seldom are successful. But imps are easy to add to code that has multiple 
+processes running, like today's stones, vampires, or paper. The most successful 
+imp warriors use most of their process time in a more conventional attack, and 
+rely on the imp-ring as a backup. Whether an imp is a good idea in your program 
+depends on the program; you may lose less, but you may win less. About the only 
+thing you can be sure of is tying more. But testing your warrior always helps. 
+<P>Killing imps is difficult, but not impossible. Imp gates work well against 
+most imps, but should only be executed after the rest of your code has done its 
+stuff. Imp gates of the form <PRE>         SPL 0,&lt;gate
+         DAT &lt;gate,&lt;gate</PRE>can sometimes kill even gate-crashing imps. 
+Fast bombing programs can occasionally catch the launching code before it has 
+completed, especially with fancier imps. Code with a long enough bombing run 
+(e.g. Charon v8.1) can hit and destroy all the imp instructions if it is done 
+right. Dropping a single MOV 0,&lt;1 bomb on the tail (or vulnerable instruction 
+soon after the tail) of an imp-ring will kill the entire ring off. Dropping a 
+MOV &lt;2667,&lt;5334 instruction on a 3-point imp ring can kill as many as 9 
+imp instructions, and is extremely effective in a stream (which is sequential 
+bombing of memory). Some programs use an imp trap tailor-made for stunning 
+imp-rings by dropping SPL 0 bombs on the imp-ring using a step size of 2667, so 
+that the ring is attacked from the tail forward. 
+<P>An enhancement to the imp-launching routines is to add decrement statements 
+to all the b-fields of the SPL and JMP commands. If you have a large binary 
+launch, for example, you could decrement 63 instructions throughout core for 
+free. Most of the original code I have based this chapter on has such b-fields. 
+<P>Here is a list of imp-style programs worth investigating. Unless otherwise 
+noted, they can be found in <A 
+href="ftp://ftp.csua.berkeley.edu/pub/corewar/redcode/warrior10.tar.Z">warrior10.tar</A> 
+in the 88 directory. Imp-stone combos will be listed in the back of <A 
+href="http://www.ecst.csuchico.edu/~pizza/koth/chapter2.html">chapter 2</A>. 
+<P>"The IMPire strikes back" by Anders Ivner (impire)<BR>"Trident" by Anders 
+Ivner (trident)<BR>"Nimbus 1.2" by Alex MacAulay (nimbus12)<BR>"Imps! Imps! 
+Imps!" by Steven Morrell (contact morrell@math.utah.edu) 
+<P>
+<HR>
+Program 2, Imp, was written by A.K. Dewdney for his Scientific American 
+articles. 
+<P>Program 3, Imp Gate, was suggested in its current form by B.Thomsen, and is 
+often called a wimp in the literature. 
+<P>Program 5, Ring, was stolen and modified from a _Push Off_ article from 
+P.Kline, but it looks suspiciously like A.Ivner's "Trident." 
+<P>Program 7, Gate Crashing Spiral, was stolen and modified from P.Kline's 
+"Cannonade." 
+<P>Program 8, Nimbus Spiral, was stolen and modified from A.MacAulay's "Nimbus 
+1.2." 
+<HR>
+<A href="http://www.ecst.csuchico.edu/~pizza/koth/chapter2.html">Follow this 
+link to Chapter 2.</A> </BODY></HTML>
