@@ -128,7 +128,7 @@ enum {
 /* Version and date */
 
 #define PMARSVER  92
-#define PMARSDATE "25/12/00"
+#define PMARSDATE "28/05/18"
 
 #ifdef VMS                        /* Must change codes to work with VMS error
                                  * handling */

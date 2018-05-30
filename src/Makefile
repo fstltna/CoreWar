@@ -63,3 +63,10 @@ $(OBJ1) $(OBJ2) $(OBJ3): Makefile config.h global.h
 clean:
 	rm -f $(OBJ1) $(OBJ2) $(OBJ3) core
 
+install:
+	mkdir -p /sbbs/doors/corewar/warriors
+	cp ../warriors/* /sbbs/doors/corewar/warriors
+	mkdir -p /sbbs/doors/corewar/players
+	cp pmars /sbbs/doors/corewar/
+
+
