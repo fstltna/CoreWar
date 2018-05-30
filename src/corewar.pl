@@ -18,7 +18,7 @@ my $CR_ver = "0.7";
 my $Record = "false";	# Are results saved?
 my $TempDir = "/tmp";
 my $WarriorName = "";
-my $BotVersion = "";
+my $WarriorVersion = "";
 
 # Set UserName from command line
 my $UserName = $ARGV[0];
@@ -55,22 +55,22 @@ my $menuselection = "";
 sub MainMenu
 {
 	$menuselection = $d->menu( title => 'Main Menu', text => 'Select one:',
-                            list => [ '1', 'Manage Your Bots',
-                                      '2', 'Debug Your Bots',
+                            list => [ '1', 'Manage Your Warriors',
+                                      '2', 'Debug Your Warriors',
                                       '3', 'Battle Arena',
                                       '4', 'Test Bench',
                                       '5', 'Battle Stats' ] );
 }
 
-sub GetBotVersion
+sub GetWarriorVersion
 {
 	my $SourceString = shift;
 	my $SourcePos = rindex($SourceString, ':');
 	my $SourceName = substr($SourceString, $SourcePos + 2);
 	$SourceName = substr($SourceName, 0, length($SourceName) - 3);
-	$BotVersion = $SourceName;
+	$WarriorVersion = $SourceName;
 }
-sub GetBotName
+sub GetWarriorName
 {
 	my $SourceString = shift;
 	my $SourcePos = rindex($SourceString, ':');
@@ -80,22 +80,22 @@ sub GetBotName
 }
 
 # Reads and parses header in warrior file
-sub ReadBot
+sub ReadWarrior
 {
 	my $WarriorFile = shift;
 	$WarriorName = "UnknownWarrior";
-	$BotVersion = "???";
+	$WarriorVersion = "???";
 	open(ROBOTFH, '<', $WarriorFile) or die "Unable to read warrior file $WarriorFile: $!";
 	while(<ROBOTFH>)
 	{
 		chop;
 		if (substr($_, 0, 11) eq "/* Version:")
 		{
-			GetBotVersion($_)
+			GetWarriorVersion($_)
 		}
-		elsif (substr($_, 0, 11) eq "/* BotName:")
+		elsif (substr($_, 0, 11) eq "/* WarriorName:")
 		{
-			GetBotName($_)
+			GetWarriorName($_)
 		}
 	}
 	close(ROBOTFH);
@@ -103,10 +103,10 @@ sub ReadBot
 
 sub ManageBots
 {
-	my $selectbot = $d->fselect( title => "Select Your Bot To Manage", path => "/sbbs/doors/corewar/players/$UserName" );
-	$selectbot =~ s/\s+/_/g;
-	$selectbot =~ s/</_/g;
-	$selectbot =~ s/>/_/g;
+	my $selectwarrior = $d->fselect( title => "Select Your Warrior To Manage", path => "/sbbs/doors/corewar/players/$UserName" );
+	$selectwarrior =~ s/\s+/_/g;
+	$selectwarrior =~ s/</_/g;
+	$selectwarrior =~ s/>/_/g;
 
 	if ($d->state() ne "OK")
 	{
@@ -114,40 +114,40 @@ sub ManageBots
 		return;
 	}
 
-	if (substr($selectbot, -2) ne ".red")
+	if (substr($selectwarrior, -4) ne ".red")
 	{
 		$d->msgbox( title => "Selected Warrior:", text => "File is not a warrior, aborting... To create a warrior end the name with \".red\"" );
 		return;
 	}
 
 	my $PathString = "/sbbs/doors/corewar/players/$UserName";
-	if (substr($selectbot, 0, length($PathString)) ne $PathString)
+	if (substr($selectwarrior, 0, length($PathString)) ne $PathString)
 	{
 		$d->msgbox( title => "Selected Warrior:", text => "Can only manage warriors you own, aborting..." );
 		return;
 	}
 	# Does selection exist?
-	if (! -f "$selectbot")
+	if (! -f "$selectwarrior")
 	{
 		# no
-		my $BotNamePos = rindex($selectbot, '/');
-		my $BotName = substr($selectbot, $BotNamePos + 1);
-		$d->msgbox( title => "Selected Warrior:", text => "Warrior \"$selectbot\" will be created..." );
-		open(MYFH, '>', $selectbot) or die $!;
+		my $WarriorNamePos = rindex($selectwarrior, '/');
+		my $WarriorName = substr($selectwarrior, $WarriorNamePos + 1);
+		$d->msgbox( title => "Selected Warrior:", text => "Warrior \"$selectwarrior\" will be created..." );
+		open(MYFH, '>', $selectwarrior) or die $!;
 		print MYFH "/* Version: 1.0 */\n";
-		print MYFH "/* BotName: $BotName */\n";
+		print MYFH "/* WarriorName: $WarriorName */\n";
 		print MYFH "/* Owner: $UserName */\n";
 		close(MYFH);
 	}
-	system ("$FileEditor \"$selectbot\"");
+	system ("$FileEditor \"$selectwarrior\"");
 }
 
 sub DebugBot
 {
-	my $selectbot = $d->fselect( title => "Select Your Bot To Debug", path => "/sbbs/doors/corewar/players/$UserName" );
-	$selectbot =~ s/\s+/_/g;
-	$selectbot =~ s/</_/g;
-	$selectbot =~ s/>/_/g;
+	my $selectwarrior = $d->fselect( title => "Select Your Warrior To Debug", path => "/sbbs/doors/corewar/players/$UserName" );
+	$selectwarrior =~ s/\s+/_/g;
+	$selectwarrior =~ s/</_/g;
+	$selectwarrior =~ s/>/_/g;
 
 	if ($d->state() ne "OK")
 	{
@@ -155,27 +155,27 @@ sub DebugBot
 		return;
 	}
 
-	if (substr($selectbot, -2) ne ".red")
+	if (substr($selectwarrior, -4) ne ".red")
 	{
 		$d->msgbox( title => "Selected Warrior:", text => "File is not a warrior, aborting..." );
 		return;
 	}
 
 	my $PathString = "/sbbs/doors/corewar/players/$UserName";
-	if (substr($selectbot, 0, length($PathString)) ne $PathString)
+	if (substr($selectwarrior, 0, length($PathString)) ne $PathString)
 	{
 		$d->msgbox( title => "Selected Warrior:", text => "Can only debug warriors you own, aborting..." );
 		return;
 	}
 	# Does selection exist?
-	if (! -f "$selectbot")
+	if (! -f "$selectwarrior")
 	{
 		# no
 		$d->msgbox( title => "Selected Warrior:", text => "Warrior must exist, aborting..." );
 		return;
 	}
 	# Debug the bot
-	my $GameCommand = "$CorewarExe -d \"$selectbot\"";
+	my $GameCommand = "$CorewarExe -d \"$selectwarrior\"";
 	system($GameCommand);
 	$d->msgbox( title => "Debug Completed", text => "Completed debugging this bot..." );
 }
@@ -207,46 +207,46 @@ sub BattleArena
 	my @ActiveWarriors = ();
 	my @ActiveWarriorsFull = ();
 	my $AddedBots = 0;
-	foreach my $CurBot (@selection1)
+	foreach my $CurWarrior (@selection1)
 	{
 		if ($AddedBots < 3)
 		{
-			if ($CurBot == 1)
+			if ($CurWarrior == 1)
 			{
 				push (@ActiveWarriors, "aeka.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/aeka.red");
 			}
-			elsif ($CurBot == 2)
+			elsif ($CurWarrior == 2)
 			{
 				push (@ActiveWarriors, "bubbly_short.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/bubbly_short.red");
 			}
-			elsif ($CurBot == 3)
+			elsif ($CurWarrior == 3)
 			{
 				push (@ActiveWarriors, "fern.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/fern.red");
 			}
-			elsif ($CurBot == 4)
+			elsif ($CurWarrior == 4)
 			{
 				push (@ActiveWarriors, "flashpaper.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/flashpaper.red");
 			}
-			elsif ($CurBot == 5)
+			elsif ($CurWarrior == 5)
 			{
 				push (@ActiveWarriors, "pspace.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/pspace.red");
 			}
-			elsif ($CurBot == 6)
+			elsif ($CurWarrior == 6)
 			{
 				push (@ActiveWarriors, "rave.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/rave.red");
 			}
-			elsif ($CurBot == 7)
+			elsif ($CurWarrior == 7)
 			{
 				push (@ActiveWarriors, "shelter.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/shelter.red");
 			}
-			elsif ($CurBot == 8)
+			elsif ($CurWarrior == 8)
 			{
 				push (@ActiveWarriors, "validate.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/validate.red");
@@ -265,10 +265,10 @@ sub BattleArena
 	my $NotAbort = -1;
 	while (($AddedBots < 3) && $NotAbort)
 	{
-		my $selectbot = $d->fselect( title => "Select Your or Other Player Bots:", path => "/sbbs/doors/corewar/players/$UserName" );
-		$selectbot =~ s/\s+/_/g;
-		$selectbot =~ s/</_/g;
-		$selectbot =~ s/>/_/g;
+		my $selectwarrior = $d->fselect( title => "Select Your or Other Player Bots:", path => "/sbbs/doors/corewar/players/$UserName" );
+		$selectwarrior =~ s/\s+/_/g;
+		$selectwarrior =~ s/</_/g;
+		$selectwarrior =~ s/>/_/g;
 		if ($d->state() ne "OK")
 		{
 			$d->msgbox( title => "Selected Warrior:", text => "No warrior selected..." );
@@ -276,7 +276,7 @@ sub BattleArena
 		}
 		else
 		{
-			if (substr($selectbot, -2) ne ".red")
+			if (substr($selectwarrior, -4) ne ".red")
 			{
 				$d->msgbox( title => "Selected Warrior:", text => "File is not a warrior..." );
 				return;
@@ -284,7 +284,7 @@ sub BattleArena
 			else
 			{
 				# Does selection exist?
-				if (! -f "$selectbot")
+				if (! -f "$selectwarrior")
 				{
 					# no
 					$d->msgbox( title => "Selected Warrior:", text => "Warrior must exist!" );
@@ -292,40 +292,40 @@ sub BattleArena
 				else
 				{
 					$AddedBots++;
-					push (@ActiveWarriorsFull, $selectbot);
+					push (@ActiveWarriorsFull, $selectwarrior);
 				}
 			}
 		}
 	}
-	my $selectbot = $d->fselect( title => "Select Your Bot To Be Ranked:", path => "/sbbs/doors/corewar/players/$UserName" );
-	$selectbot =~ s/\s+/_/g;
-	$selectbot =~ s/</_/g;
-	$selectbot =~ s/>/_/g;
+	my $selectwarrior = $d->fselect( title => "Select Your Bot To Be Ranked:", path => "/sbbs/doors/corewar/players/$UserName" );
+	$selectwarrior =~ s/\s+/_/g;
+	$selectwarrior =~ s/</_/g;
+	$selectwarrior =~ s/>/_/g;
 	if ($d->state() ne "OK")
 	{
 		$d->msgbox( title => "Selected Warrior:", text => "No warrior selected, aborting..." );
 		return;
 	}
-	if (substr($selectbot, -2) ne ".red")
+	if (substr($selectwarrior, -4) ne ".red")
 	{
 		$d->msgbox( title => "Selected Warrior:", text => "File is not a warrior, aborting..." );
 		return;
 	}
 	my $PathString = "/sbbs/doors/corewar/players/$UserName";
-	if (substr($selectbot, 0, length($PathString)) ne $PathString)
+	if (substr($selectwarrior, 0, length($PathString)) ne $PathString)
 	{
 		$d->msgbox( title => "Selected Warrior:", text => "Can only rank warriors you own, aborting..." );
 		return;
 	}
 	# Does selection exist?
-	if (! -f "$selectbot")
+	if (! -f "$selectwarrior")
 	{
 		# no
 		$d->msgbox( title => "Selected Warrior:", text => "Warrior must exist!" );
 		return;
 	}
 	# Execute the game
-	my $GameCommand = "$CorewarExe \"$selectbot\"";
+	my $GameCommand = "$CorewarExe \"$selectwarrior\"";
 	foreach my $curbot (@ActiveWarriorsFull)
 	{
 		$GameCommand = sprintf("%s \"%s\"", $GameCommand, $curbot);
@@ -350,7 +350,7 @@ sub BattleArena
 		return;
 	}
 	# Read In Bot Details
-	ReadBot($selectbot);
+	ReadWarrior($selectwarrior);
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
 	$year += 1900;
 	$mon += 1;
@@ -358,8 +358,8 @@ sub BattleArena
 	my $GameDate = sprintf("%04d%02d%02d", $year, $mon, $mday);
 	open(MYFH, '>', $TempOut) or die "Could not create file '$TempOut' $!";
 	print MYFH "Player=$UserName
-BotName=$WarriorName
-BotVersion=$BotVersion
+WarriorName=$WarriorName
+WarriorVersion=$WarriorVersion
 NumWins=$DidWin
 GameDate=$GameDate
 NumBattles=1\n";
