@@ -24,7 +24,7 @@ my $BotVersion = "";
 my $UserName = $ARGV[0];
 if (!$UserName)
 {
-	print "You must supply the username!\n";
+	print "You must supply the username as first argument!\n";
 	exit 0;
 }
 
@@ -38,17 +38,7 @@ my $windowtitle = "Welcome to CoreWar!";
 my $enjoyedtitle = "We hope you enjoyed CoreWar!";
 my $introtext =
 "Welcome to the classic programming game!
-CROBOTS (\"see-robots\") is a game based on computer programming.
-Unlike arcade type games which require human inputs controlling
-some object, all strategy in CROBOTS must be complete before the
-actual game begins.  Game strategy is condensed into a C language
-program that you design and write.  Your program controls a robot
-whose mission is to seek out, track, and destroy other robots,
-each running different programs.  Each robot is equally equipped,
-and up to four robots may compete at once.  CROBOTS is best
-played among several people, each refining their own robot
-program, then matching program against program. View stats at
-https://amigacity.xyz/stats.html";
+At the beginning of a game, each battle program is loaded into memory at a random location, after which each program executes one instruction in turn. The goal of the game is to cause the processes of opposing programs to terminate (which happens if they execute an invalid instruction), leaving the victorious program in sole possession of the machine.";
 
 $d->msgbox( title => $windowtitle, text => $introtext );
 
