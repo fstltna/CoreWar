@@ -10,6 +10,19 @@ Download Release files at [this site](https://synchronetbbs.org/index.php/downlo
 
 ----------------------------
 
+**Installing**
+=======
+
+This app requires the Perl scripting language. You will need to run the following commands before using it:
+
+~~~~
+cpan
+install UI::Dialog
+install Term::ReadKey
+install Term::ANSIScreen
+~~~~
+
+
 **Game Play**
 =======
 
