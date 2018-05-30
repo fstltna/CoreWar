@@ -38,6 +38,9 @@ my $windowtitle = "Welcome to CoreWar!";
 my $enjoyedtitle = "We hope you enjoyed CoreWar!";
 my $introtext =
 "Welcome to the classic programming game!
+----
+Core War is a game played between two or more programs written in Redcode, a low-level language similar to assembly. Players write a program to eliminate all opponents in the memory of the MARS virtual computer. Core War can also be used as a platform to experiment with genetic programming.
+----
 At the beginning of a game, each battle program is loaded into memory at a random location, after which each program executes one instruction in turn. The goal of the game is to cause the processes of opposing programs to terminate (which happens if they execute an invalid instruction), leaving the victorious program in sole possession of the machine.";
 
 $d->msgbox( title => $windowtitle, text => $introtext );
