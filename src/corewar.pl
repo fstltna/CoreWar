@@ -192,7 +192,7 @@ sub BattleArena
 	}
 	my @selection1 = $d->checklist( title => "Select Testing Warriors", text => 'Select up to 3: (If you choose more than 3 only first 3 will be used)',
                                  list => [ '1', [ 'aeka.red', 0 ],
-                                           '2', [ 'bubbly_hort.red', 0 ],
+                                           '2', [ 'bubbly_short.red', 0 ],
                                            '3', [ 'fern.red', 0 ],
                                            '4', [ 'flashpaper.red', 0 ],
                                            '5', [ 'pspace.red', 1 ],
@@ -215,20 +215,35 @@ sub BattleArena
 			}
 			elsif ($CurBot == 2)
 			{
+				push (@ActiveWarriors, "bubbly_short.red");
+				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/bubbly_short.red");
+			}
+			elsif ($CurBot == 3)
+			{
+				push (@ActiveWarriors, "fern.red");
+				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/fern.red");
+			}
+			elsif ($CurBot == 4)
+			{
 				push (@ActiveWarriors, "flashpaper.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/flashpaper.red");
 			}
-			elsif ($CurBot == 3)
+			elsif ($CurBot == 5)
 			{
 				push (@ActiveWarriors, "pspace.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/pspace.red");
 			}
-			elsif ($CurBot == 4)
+			elsif ($CurBot == 6)
 			{
 				push (@ActiveWarriors, "rave.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/rave.red");
 			}
-			elsif ($CurBot == 5)
+			elsif ($CurBot == 7)
+			{
+				push (@ActiveWarriors, "shelter.red");
+				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/shelter.red");
+			}
+			elsif ($CurBot == 8)
 			{
 				push (@ActiveWarriors, "validate.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/validate.red");
