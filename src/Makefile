@@ -66,6 +66,8 @@ clean:
 install:
 	mkdir -p /sbbs/doors/corewar/warriors
 	cp ../warriors/* /sbbs/doors/corewar/warriors
+	mkdir -p /sbbs/doors/corewar/doc
+	cp -r ../doc/* /sbbs/doors/corewar/doc
 	mkdir -p /sbbs/doors/corewar/players
 	cp pmars /sbbs/doors/corewar/
 	cp ../README_BBS.md /sbbs/doors/corewar
