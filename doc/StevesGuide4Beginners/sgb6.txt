@@ -1,0 +1,172 @@
+#########################################################################
+SGB_06.net	CORE WARS
+
+Steve's Guide for Beginners Iss 6 (v3)
+
+Issue 3 showed how simple warriors interact, run
+each other's code and kill each other.
+
+Issue 4 dealt with the basics of the debugger.
+
+Issue 5 mentioned graphical display and analysed 2
+simple warriors.
+
+======
+
+Instruction set and Addressing modes:
+
+These are covered formally in the redcode 94 draft
+specification, (Is it still draft? Am I looking at
+the right file?) and informally in the tutorial.
+
+Most fights discussed in rec.games.corewar seem to
+use "Draft-94 extended" which is covered in
+REDCODE.REF .
+
+Points to note. All instructions have 2 operands,
+although sometimes only one is used. All numbers
+are positive integers in range 0..CORESIZE-1.
+
+The format is:
+Label Opcode AOperand, BOperand
+(An Opcode is a basic "opcode" with a "modifier".)
+(An operand is an address "mode" with a "number".)
+
+Opcodes are typical of traditional assemblers:
+
+MOV, ADD, SUB, MUL (need to check what happens
+with overflows and "negative" numbers), DIV
+produces the quotient (ditto), MOD produces the
+remainder (ditto).
+
+CMP (Skip if equal), SLT (Skip if less than).
+
+JMP, JMZ (Jump if zero), JMN (Jump if non zero).
+All jump to AOperand and test BOperand.
+
+DJN (Decrement BOperand and then if it is non-zero
+jump to AOperand),
+
+DAT is for storing data (possibly two numbers in
+    the two operand files. EXECUTING A DAT crashes
+    a process, thus killing part of a warrior.
+
+SPL splits the warrior, producing an extra
+    process. It acts if a "photocopy" of the
+    instruction is made with the original
+    executing a NoOperation instruction "JMP 1"
+    then the new process executes "JMP Source"
+Once you split your warrior into N processes, each
+process runs at 1/Nth of the usual speed.
+
+SEQ (CMP), SNE (Skip if not equal), NOP (JMP 1),
+LDP and STP are extensions.
+
+The mixture of modifiers for the opcode (.A, .B,
+.AB, .BA, .F, .X, .I) with modifiers for the
+Operands ( #, $, @, <, > and extensions *, {, } )
+produce a complicated set of possible
+instructions.
+
+======
+
+Lets look at DWARF again. First what we (nearly)
+typed:
+
+bomb	dat	#12		;was #0
+dwarf	add	#4,	bomb
+	mov	bomb,	@bomb
+	jmp	dwarf
+
+Next the assembly listing. (Comments are not
+assembler output!):
+	dat.f	#0,	#12
+	add.ab	#4,	$-1	;really $CORESIZE-1
+	mov.i	$-2,	@-2
+	jmp.b	$-2,	$0
+
+Which means:
+
+DAT
+The .f means both operands, a meaningless option
+for the DAT non-instruction.
+# means immediate data (IE the address is the
+address of this location).
+Note that the data is in the B operand.
+
+ADD .ab
+Take the A number from ( # ) current location and
+add it to the B number of ( $-1 ) the previous
+location. Store result in B number of the previous
+location. $ means the address is the number in the
+instruction being executed.
+
+MOV
+.i The entire instuction, opcode and both
+operands.
+@ The address is the B number found in the
+location specified by this operand.
+
+JMP
+.b Doesn't make sense in this context, the
+destination address is in the A operand.
+
+======
+
+Lets try a set of instructions, before execution
+on the left, and after execution on the right, to
+demonstrate some of these points:
+
+st  add.a  #1,   #10		#2,	#10
+    add.ab #1,   #10		#1,	#11
+    add.ba #1,   #10		#11,	#10
+    add.b  #1,   #10		#1,	#20
+    add.f  #1,   #10		#2,	#20
+    add.x  #1,   #10		#11,	#11
+    add.i  #1,   #10		#2,	#20
+
+    add.a  $a1,  $a2
+    jmp    $ab
+a1  dat    #1,   #10		#1,	#10
+a2  dat    #4,   #40		#5,	#40
+
+ab  add.ab $ab1, $ab2
+    jmp    $ba
+ab1 dat    #1,   #10		#1,	#10
+ab2 dat    #4,   #40		#4,	#41
+
+ba  add.ba  $ba1, $ba2
+    jmp    $b
+ba1 dat    #1,   #10		#1,	#10
+ba2 dat    #4,   #40		#14,	#40
+
+b   add.b  $b1,  $b2
+    jmp    $f
+b1  dat    #1,   #10		#1,	#10
+b2  dat    #4,   #40		#4,	#50
+
+f   add.f  $f1,  $f2
+    jmp    $x
+f1  dat    #1,   #10		#1,	#10
+f2  dat    #4,   #40		#5,	#50
+
+x   add.x  $x1,  $x2
+    jmp    $i
+x1  dat    #1,   #10		#1,	#10
+x2  dat    #4,   #40		#14,	#41
+
+i   add.i  $i1,  $i2
+    jmp    $0
+i1  dat    #1,   #10		#1,	#10
+i2  dat    #4,   #40		#5,	#50
+
+    end	   st
+
+=== Steve Bailey 101374.624@compuserve.com
+sgb@zed-inst.demon.co.uk
+http://ourworld.compuserve.com/homepages/SGBailey
+Work: Electronics Play: Go 2kyu.
+
+#########################################################################
+
+

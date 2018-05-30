@@ -1,0 +1,62 @@
+#########################################################################
+SGB_09.net	CORE WARS
+
+Steve's Guide for Beginners Iss 9 (v2)
+
+Issue 6 provided an outline of the instruction set
+and addressing modes.
+
+Issue 7 looked at one (inefficient) way of copying
+blocks of code/data around.
+
+Issue 8 looked at another variation of copying and
+at the SPL command.
+
+======
+
+This issue is a bit of a cheat really, but since
+they are pseudo-notes of my wanderings through the
+core war world, I reckon its valid.
+
+======
+
+Study Steven Morrell's "My First Corwar Book"
+chapters 1 (Imp-Rings) and 2 (Stones).
+
+These are very clear and well explained - The only
+problem is that chapters on other types are not
+available.
+
+======
+
+Using SPL to do copies:
+
+Refer to Beppe's hints on Replicators in "Core
+Warrior" #1, #3.
+
+======
+
+Other info in Core Warrior is also very useful.
+There is more there than is quickly readable.
+
+All the above mentioned items are available on WWW
+from http://www.stormking.com/~koth
+
+=== Steve Bailey 101374.624@compuserve.com
+sgb@zed-inst.demon.co.uk
+http://ourworld.compuserve.com/homepages/SGBailey
+Work: Electronics Play: Go 2kyu.
+
+(Appendix because this is a very short issue:
+
+Problem for Beginner Go Players:
+Black to play and kill:
+
+	. . # O . O . O # . .
+	. . # O O O . O # .
+	  . # # # # . O # .
+	    . . . . # # #
+)
+#########################################################################
+
+

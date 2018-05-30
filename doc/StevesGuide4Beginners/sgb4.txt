@@ -1,0 +1,108 @@
+######################################################################
+SGB_04.net	CORE WARS
+
+Steve's Guide for Beginners Iss 4 (v3)
+
+Issue 1 dealt with what is corewars and how to get
+the really basic stuff downloaded for a PC.
+
+Issue 2 introduced two "warriors", BORING and
+USELESS.
+
+Issue 3 showed how simple warriors interact, run
+each other's code and kill each other.
+
+======
+
+Now all that stuff with "." and "j" and "mnMn" is
+all very well, but PMARSV includes a debugger to
+assist in this task. 
+
+My aim here is to get to grips with some of the
+debug tools - I'm nowhere near ready to
+contemplate designing Warriors yet. So lets
+investigate CDB.
+
+Type: PM USELESS BORING3 -l 5 -s 20 -e -F 10
+(lower case -l, -s and -e) (upper case -F)
+The "-l 5" limits each warriors source code length
+to 5 instructions.
+The "-s 20" specifies a memory size of 20 (which
+will easily fit on one screen).
+The "-e" enters the debugger.
+The "-F 10" Forces BORING3 to start at Adr 10.
+(Ignore the compilation stuff scrolling up the
+screen.)
+
+You get presented with the instruction about to
+execute, in this case a blue (USELESS's) "JMP 0".
+Type "HELP" with several returns to see built-in
+prompts.
+
+At a (cdb) prompt type "L0,$" to list all of
+memory from Address 0 to the last address (19).
+
+I see USELESS at adr 0 and BORING3 at adr 10..11.
+Adr 0 is blue, for USELESS's current instruction.
+Adr 10 is green for BORING3's current instruction
+(MOV 1,3).
+
+"s" (for step) executes Adr 0 and displays Adr 10.
+"s" executes Adr 10 and displays Adr 0 again.
+"l0,$" displays all memory again and I note that
+Adr 11 is now green, and that Adr 13 contains a
+copy of Adr 10.
+
+Do a dozen "s" commands (You don't have to type
+the s each time as ENTER repeats the last
+command.) Then l0,$ again, you can see how BORING3
+has 'grown' (? probably the wrong term).
+
+Type "r" to see a summary of the registers. Note
+that we have done about 7 cycles (IE each warrior
+has had 7 instruction operations) with only 79993
+left to go. 1 copy of USELESS exists and is about
+to run at Adr 0. 1 copy of BORING3 exists and is
+about to run at Adr 17. (The P-space stuff is
+definitely ignorable for the present!)
+
+Another eight "s" and we see USELESS executing
+BORING3's code. BORING3 seems to have disappeared
+as it has the same Program counter value as
+USELESS.
+
+Type "q" (quit).
+
+======
+
+Now lets repeat all this with
+PM USELESS BORING3 -l 5 -s 20 -e -F 11
+
+Do 13 "s" and then "l0,$".
+One "s" and "l0,$". Note that USELESS is about to
+execute MOV -1,1.
+One "s~l0,$" (A meld of two cdb instructions).
+USELESS's PC is at Adr 1 which has no content.
+Two "s". The second "s" ends the round with
+USELESS dead at Adr 1.
+
+======
+
+That's the basics of the debugger. It can also
+search, edit, jump etc etc.
+
+For any beginner reading these guides, note that
+they are basically a log of what I am doing to
+learn core wars. You too can do the same
+experiments, but you MUST ALSO read the other
+documentation (FAQ, Tutorial, Language
+specification etc).
+
+=== Steve Bailey 101374.624@compuserve.com
+sgb@zed-inst.demon.co.uk
+http://ourworld.compuserve.com/homepages/SGBailey
+Work: Electronics Play: Go 2kyu.
+
+######################################################################
+
+

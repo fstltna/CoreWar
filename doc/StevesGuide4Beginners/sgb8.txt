@@ -1,0 +1,145 @@
+#########################################################################
+SGB_08.net	CORE WARS
+
+Steve's Guide for Beginners Iss 8 (v2)
+
+Issue 5 mentioned graphical display and analysed 2
+simple warriors.
+
+Issue 6 provided an outline of the instruction set
+and addressing modes.
+
+Issue 7 looked at one (inefficient) way of copying
+blocks of code/data around.
+
+======
+
+Lets try various improvements and alternatives to
+the program (well, you can't call it a warrior!)
+COPY.RED .
+
+Edit a text file COPY2.RED to read:
+;redcode-94
+;name Copy2
+;author sgb
+;assert	1
+OFFSET  equ     20
+;Variables
+ptr     dat     #1,	#2
+;Initialise
+start   mov.a   #last-ptr,      ptr     
+	mov.ab  #(last+OFFSET)-ptr,	ptr
+	mov.ab  #(last-ptr)/2,	count
+;Do the copy
+loop    mov.i   {ptr,	<ptr
+	mov.i	{ptr,	<ptr
+count	djn     loop,	#0
+;Jump to run the new copy
+	jmp     start+OFFSET
+last    end     start
+
+The differences to COPY:
+
+";assert 1" has been included to remove an assembler
+warning message.
+
+One variable PTR is used for both the source and
+the destination pointers. Because the source
+pointer is in the AOperand, the initialisation is
+done with MOV.A .
+
+There is no variable COUNT, instead the DJN
+instruction is modified directly. This concept of
+self-modifying code will become more prevalent as
+we progress. (So much for easily supportable clear
+code!)
+
+To speed the loop up, we are copying two locations
+per loop, hence the count was initialise to half
+the number of locations to copy. (Note that it was
+convenient that the number was even - if it had
+been odd, we would have had to move one location
+more than we wanted to and would have had to have
+ensured that the loop count was correctly
+initialised.)
+
+The copies are done with { and <. { is like < but
+uses data from the AOperand.
+
+"PM COPY COPY2" gets about 50% wins for each.
+
+Stats:		COPY	COPY2
+Length		9	8
+Loop speed	0.5c	0.67c
+Total period	22	16
+
+======
+
+Apparently modern copiers are done with multiple
+processes, so lets get to grips with these.
+
+A SPL command adds an extra process to the
+program by splitting. The "existing" process acts
+as if the SPL command was "NOP" or "JMP 1". The
+additional process acts as if the command was
+"JMP dest".
+
+The complicated bits are sorting out the order
+that new processes execute in, and what happens if
+multiple processes run the same code.
+
+Here is a sample of code:
+bomb	dat	#0,	#0
+loop	mov	bomb,	<bomb
+	spl	1
+	jmp	1
+
+If I repeatedly list the code sample with
+the position of the program counter for each
+process and the program counter queue shown, it
+should be possible to follow what's happening:
+
+Q=A	MOV:A		SPL:		JMP:
+Initially only process A exists. It executes MOV
+(to bomb-1).
+Q=A	MOV:		SPL:A		JMP:
+Then it executes a split creating process B.
+Q=AB	MOV:B		SPL:		JMP:A
+Then process A executes a JMP.
+Q=BA	MOV:BA		SPL:		JMP:
+Process B executes MOV to (bomb-2).
+Q=AB	MOV:A		SPL:B		JMP:
+Process A executes MOV to (bomb-3).
+Q=BA	MOV:		SPL:BA		JMP:
+B splits into B & C.
+Q=ABC	MOV:C		SPL:A		JMP:B
+A splits into A & D.
+Q=BCAD	MOV:CD		SPL:		JMP:BA
+B JMPs.
+Q=CADB	MOV:CDB		SPL:		JMP:A
+C executes MOV to (bomb-4).
+Q=ADBC	MOV:DB		SPL:C		JMP:A
+A JMPs.
+Q=DBCA	MOV:DBA		SPL:C		JMP:
+D executes MOV to (bomb-5)
+Q=BCAD	MOV:BA		SPL:CD		JMP:
+B executes MOV to (bomb-6)
+Q=CADB	MOV:A		SPL:CDB		JMP:
+C splits into C & E
+Q=ADBCE	MOV:AE		SPL:DB		JMP:C
+etc.
+
+You'll note that we are generating new processes
+quite fast, though be aware that most pMARS arens
+have a limit on the number of processes permittesd
+to any program (often 64, though 8000 on KOTH
+"King Of The Hill").
+
+=== Steve Bailey 101374.624@compuserve.com
+sgb@zed-inst.demon.co.uk
+http://ourworld.compuserve.com/homepages/SGBailey
+Work: Electronics Play: Go 2kyu.
+
+#########################################################################
+
+

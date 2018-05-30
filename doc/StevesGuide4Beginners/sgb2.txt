@@ -1,0 +1,99 @@
+######################################################################
+SGB_02.net	CORE WARS
+
+Steve's Guide for Beginners Iss 2 (v4)
+
+Issue 1 dealt with what is corewars and how to get
+the really basic stuff downloaded for a PC.
+
+======
+
+I made myself a one-line batch file PM.BAT to ease
+my DOS typing:
+PMARSV %3 %4 %5 %6 %7 %8 %9 %1.RED %2.RED
+
+Thus "PM RAVE AEKA" is the same as 
+"PMARSV RAVE.RED AEKA.RED"
+
+======
+
+Warriors:
+
+The *.RED files are warriors - that is simple
+programs. You need to study the tutorials and
+other documents on rec.games.corewar and at the
+archives to fully understand them. If you have no
+knowledge of programming and/or no knowledge of
+assembly languages then Core Wars may be too much
+for you.
+
+Meanwhile lets make a very simple warrior.
+
+Edit a text file BORING.RED to contain:
+;redcode-94
+;name Boring
+;author Your Name
+	mov    0,1
+	end
+
+pMARS instructions are all 1 instruction per
+memory location, all locations are addressed with
+an offset relative to the current Location. So
+"MOV 0,1" copies the contents of location 0 (the
+current location, whose content is "MOV 0,1") to
+location 1 (the next location). It then executes
+the next location refering to that as location 0,
+thus the program rolls round pMARS's circular
+memory writing the next intruction to execute into
+the next location - all 'just in time'.
+
+Type PM BORING BORING Watch some compilation text
+appear then watch blue zeros (representing memory
+locations accessed by the zeroth warrior) and green
+ones (representing memory locations accessed by the
+'first' warrior) scroll around the screen for
+several seconds. Wait for the "Press Any Key"
+prompt, then press a key. Observe the results at
+the end "0 0 1". What you have done is asked
+program (Warrior) BORING to fight warrior BORING.
+At the end of the fight, both were still alive, so
+the results were 0 wins, 0 losses, 1 tie (draw).
+
+Now make an absolutely useless warrior as file
+USELESS.RED:
+;redcode-94
+;name Useless
+;author Your Name
+start	jmp	start
+	end
+
+This so-called warrior just jumps to itself, never
+attacks anything and shouldn't last long.
+
+Now type (the case of the -s option matters):
+PM USELESS USELESS -s 1000
+and observe a blue 0 in the top left of the screen
+and a green 1 somewhere else in the top half of
+the screen. It will be the top half 'cos there are
+1000 character positions in the top half of a 25
+line 80 character display and the "-s 1000" makes
+the pMARS memory size 1000 locations. Patiently
+wait for the "Press Any Key" prompt.
+
+The result of that fight is obviously a tie.
+
+Now try
+PM USELESS BORING -s 1000
+The Blue 0 in the top left shouldn't last long. The
+green 1s march all over the top of the screen. I
+believed this ought to be a convincing win for
+BORING. However it isn't - the results show a tie
+with both warriors surviving. The explanation is
+in issue 3.
+
+=== Steve Bailey 101374.624@compuserve.com
+sgb@zed-inst.demon.co.uk
+http://ourworld.compuserve.com/homepages/SGBailey
+Work: Electronics Play: Go 2kyu.
+
+######################################################################

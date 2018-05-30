@@ -1,0 +1,139 @@
+#########################################################################
+SGB_07.net	CORE WARS
+
+Steve's Guide for Beginners Iss 7 (v3)
+
+Issue 4 dealt with the basics of the debugger.
+
+Issue 5 mentioned graphical display and analysed 2
+simple warriors.
+
+Issue 6 provided an outline of the instruction set
+and addressing modes.
+
+======
+
+Lets look at ways of copying code around.
+
+Traditional assembler:
+
+Make a text file COPY.RED:
+;redcode-94
+;name Copy
+;author sgb
+;Block copy code: traditional assy style
+OFFSET  equ     20
+;Variables (data is arbitrary)
+src     dat     #1
+dest    dat     #1
+count   dat     #1
+;Initialise variables
+start   mov.ab  #last-src,      src     
+	mov.ab  #(last+OFFSET)-dest,    dest
+	mov.ab  #last-src,      count
+;Do the copy
+loop    mov.i   <src,           <dest
+	djn     loop,           count
+;Jump to run the new copy
+	jmp     start+OFFSET
+last    end     start
+
+The code has four sections:
+
+OFFSET is how far we plan to copy the block of
+code.
+
+The VARIABLES are just that. I've initialised them
+to 1 purely to remind which field they are in
+after compilation (the BOperand).
+
+The INITIALISATION. The tricky bit was realising
+that because everything is relative, the
+instruction "MOV #LAST, SRC" would assemble in
+'absolute' terms as
+"MOV #(Adr LAST - Adr Here), (Adr Src - Adr Here)
+which moves a 'number' to SRC. When the number in
+SRC is used as an address it is added to 'Adr
+Src', so the desired address is wrong by the
+distance between the initialising MOV instruction
+and the SRC variable.
+The "-SRC" fixes the offset.
+
+The COPY LOOP.
+Decrement src & get the final JMP instruction -
+decrement dest and store it.
+Decrement count - has it reached zero? No, so
+loop.
+Decrement src & get the penultimate DJN
+instruction - decrement dest and store it.
+etc etc until
+Decrement count - has it reached zero? Yes, so
+don't loop. Step onto the jump and execute the
+newly copied block.
+
+======
+
+This assembles as:
+
+Program "Copy" (length 9) by "sgb"
+       ORG      START
+       DAT.F  #     0, #     1     
+       DAT.F  #     0, #     1     
+       DAT.F  #     0, #     1     
+START  MOV.AB #     9, $    -3     
+       MOV.AB #    28, $    -3     
+       MOV.AB #     9, $    -3     
+       MOV.I  <    -6, <    -5     
+       DJN.B  $    -1, $    -5     
+       JMP.B  $    15, $     0     
+
+Watch it operate with
+"PMARSV -e COPY.RED"
+and at the first (CDB) prompt use
+"@s~l0,10~l20,30"	(don't type quotes)
+then just Enter subsequently.
+
+Step through the code and watch it happen.
+
+======
+
+Some statistics:
+
+The above code is 9 locations long, although the
+three DAT instructions do not actually need to be
+part of the program. We can store the numbers in
+the BOperand of any instruction, not just DAT.
+Mind you, having the DATs make a useful device for
+crashing any other program that runs into them.
+
+The code executes 2 instructions for every one
+location it copies. This is 0.5c, where "c" is the
+"speed of light" or 1 location per instruction.
+(Our programs BORING..BORING3 all move at "1c".)
+
+There is a three instruction overhead, before the
+copy and the one instruction jump. So we copy 9
+locations every 22 instructions.
+
+======
+
+For the fun of it, lets let it challenge others:
+
+"PM COPY BORING3"	Copy wins each time.
+"PM COPY RAVE"		Rave usually wins. (Copy
+won once).
+"PM COPY AEKA"		Aeka won every time.
+
+======
+
+Issue 8 will look at various improvements to this
+method.
+
+=== Steve Bailey 101374.624@compuserve.com
+sgb@zed-inst.demon.co.uk
+http://ourworld.compuserve.com/homepages/SGBailey
+Work: Electronics Play: Go 2kyu.
+
+#########################################################################
+
+

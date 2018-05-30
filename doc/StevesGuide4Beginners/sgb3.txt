@@ -1,0 +1,161 @@
+######################################################################
+SGB_03.net	CORE WARS
+
+Steve's Guide for Beginners Iss 3 (v3)
+
+Issue 1 dealt with what is corewars and how to get
+the really basic stuff downloaded for a PC.
+
+Issue 2 introduced two "warriors", BORING and
+USELESS.
+
+======
+
+Sequencing:
+
+The programs are run "multi-tasked", swapping
+programs after each instruction. To "see" what is
+going on, lets "run" the two programs in a 10
+location memory. I'll use "." for an empty
+location, "j" for one with USELESS's "JMP start"
+instruction and "m" for one with BORING's
+"MOV 0 1" instruction. The "j" is at location "0"
+and the "m" starts at, say, location 6. I'll
+capitalise the instruction being executed and
+start each line with "U" or "B" depending upon
+whose turn it is. (Data is shown before execution
+of the instruction.)
+
+U	J.....m...
+B	j.....M...
+U	J.....mm..
+B	j.....mM..
+U	J.....mmm.
+B	j.....mmM.
+U	J.....mmmm
+B	j.....mmmM
+U	M.....mmmm
+B	Mm....mmmm
+U	mM....mmmm
+B	mMm...mmmm
+
+In other words, USELESS has started running
+BORING's code and is travelling around memory with
+the same Program Count as BORING (although it
+executes first.)
+
+This explains why USELESS doesn't die.
+
+======
+
+OK, lets copy BORING.RED to BORING2.RED and edit
+it to read:
+;redcode-94
+;name Boring2
+;author Your Name
+	mov    0,2
+	mov    0,2
+	end
+
+When we analyse this fight:
+U	J.....mm..
+B	j.....Mm..
+U	J.....mmm.
+B	j.....mMm.
+U	J.....mmmm
+B	j.....mmMm
+U	M.....mmmm
+B	m.m...mmmM
+U	mMm...mmmm
+B	Mmmm..mmmm
+U	mmMm..mmmm
+B	mMmmm.mmmm
+we see the same phenomena - USELESS is executing
+BORING2's code.
+
+So when we run PM USELESS BORING2 -s 1000
+we expect and get a tie. We can see the blue and
+green warriors, and it is obvious why there are
+lots of green 1s. It is also understandable why
+there is a single blue 0, but what about the "."
+characters?
+
+======
+
+Display meaning:
+
+All characters are coloured to define which
+warrior did the action.
+Number (0 or 1) means that program executed the
+instruction in that location.
+Flashing number; as Number but illegal instruction
+so a warrior died. (Or at least part of a
+warrior.)
+"." Location was written to.
+Small "." Location was read from.
+"-" Location decremented as an address access.
+
+Note an 8000 memory corewar fight puts 4 locations
+per character position on the 2000 character PC
+screen and so the last access type to any of the
+four locations is what is displayed.
+
+======
+
+Ok, so now we get "sophisticated" (refer to a
+dictionary - 'perverse') and do BORING3.RED which
+is a two instruction move pair, but the first
+instruction moves the second one and the second
+instruction moves the first one. This will have
+the effect of zapping the "JMP 0" instruction
+before the following instruction is in place.
+(Well that will be the case ~50% of the time.)
+
+;redcode-94
+;name Boring3
+;author Your Name
+	mov    1,3	;Copy "MOV -1,1"
+	mov    -1,1	;Copy "MOV 1,3"
+	end
+
+I'll use "M" for the "MOV 1,3" and "N" for the
+"MOV -1,1" instruction and do it twice, once with
+BORING3 starting at locn 6 and at locn 7. I'll use
+"." and "e" for empty locations, the "e" being
+a significant empty cell.
+
+locn 6:
+U	J.....mn..
+B	j.....Mn..
+U	J.....mn.n
+B	j.....mN.n
+U	J.....mnmn
+B	j.....mnMn
+U	Jn....mnmn
+B	jn....mnmN
+U	Mn....mnmn
+B	Mn.n..mnmn
+U	mN.n..mnmn
+B	mNmn..mnmn
+Here USELESS safely runs BORING3's code.
+
+locn 7:
+U	J......mne
+B	j......Mne
+U	N......mne
+B	ne.....mNe
+U	nE.....mnm
+and at this point USELESS crashes.
+
+Try running PM USELESS BORING3 -s 1000 several
+times and compare the results. Also try
+PM BORING3 USELESS -s 1000.
+
+=== Steve Bailey 101374.624@compuserve.com
+sgb@zed-inst.demon.co.uk
+http://ourworld.compuserve.com/homepages/SGBailey
+Work: Electronics Play: Go 2kyu.
+
+######################################################################
+
+

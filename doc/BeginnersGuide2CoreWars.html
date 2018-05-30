@@ -1,0 +1,1462 @@
+
+<!doctype html public "-//W3C//DTD HTML 4.0//EN">
+
+<html lang=en>
+<head>
+  <title>The beginners' guide to Redcode, v1.22</title>
+  <style type="text/css"><!--
+.op { color: #3388dd; }
+.mod { color: #2222cc; }
+.addr { color: #ff5533; }
+.pseudo { color: #33bb11; }
+.ellipsis { color: #777777; }
+.comment { color: #770000; }
+.rcline { color: #ff0000; }
+.metakey { color: #ff0000; }
+.metaval { color: #770000; }
+.assert { color: #9900ff; }
+HTML, BODY { background: #ffffff; }
+PRE { border: 1px dashed #3366dd; background: #f7f7f7; margin-left: 40px; margin-right: 30px; padding: 4px; }
+.moved { border: 1px solid #ff0000; color: #aa0000; padding: 6px; }
+.prog1 { color: #cc0000; }
+.prog2 { color: #009900; }
+  --></style>
+</head>
+<body>
+
+  <h1>The beginners' guide to Redcode</h1>
+
+  <p>Version 1.22</p>
+
+  <hr>
+
+  <h2><a name="contents">Contents</a></h2>
+
+  <ul>
+    <li><a href="#contents">Contents</a></li>
+    <li><a href="#preface">Preface</a></li>
+    <li><a href="#introduction">Introduction to Core War</a><ul>
+      <li><a href="#intro_what">What is Core War?</a></li>
+      <li><a href="#intro_how">How does it work?</a></li>
+    </ul></li>
+    <li><a href="#starting">Starting with Redcode</a><ul>
+      <li><a href="#start_instr">The Redcode instruction set</a></li>
+      <li><a href="#start_imp">The Imp</a></li>
+      <li><a href="#start_dwarf">The Dwarf</a></li>
+      <li><a href="#start_modes">The addressing modes</a></li>
+      <li><a href="#start_queue">The process queue</a></li>
+      <li><a href="#start_modif">The instruction modifiers</a></li>
+    </ul></li>
+    <li><a href="#deeper">Diving deeper into the '94 standard</a><ul>
+      <li><a href="#deep_imm">The # is more than it seems..</a></li>
+      <li><a href="#deep_math">Modulo math</a></li>
+      <li><a href="#deep_instr">The '94 standard instruction by instruction</a></li>
+      <li><a href="#deep_space">P-space -- the final frontier</a></li>
+    </ul></li>
+    <li><a href="#parser">The parser</a><ul>
+      <li><a href="#parse_label">Labels and addresses</a></li>
+      <li><a href="#parse_whole">The whole thing</a></li>
+      <li><a href="#parse_ass">The environment and ;assert</a></li>
+      <li><a href="#parse_equ">#define? Well, almost..</a></li>
+      <li><a href="#parse_for">What's "rof" used for?</a></li>
+      <li><a href="#parse_var">Variety with variables</a></li>
+      <li><a href="#parse_pin">PINs and needles</a></li>
+      <li><a href="#parse_hill">Climbing the hill</a></li>
+    </ul></li>
+    <li><a href="#history">History</a></li>
+    <li><a href="#copyright">Copyright</a></li>
+  </ul>
+
+  <hr>
+
+  <h2><a name="preface">Preface</a></h2>
+
+  <p>There aren't too many beginners interested in the game of Core War these days.  Of course, this
+  is quite natural -- not that many people would consider optimizing assembly code to be fun anyway
+  -- but one reason for the high starting threshold may be the difficulty of finding information on
+  the very basics of the game.  True, there are many good documents around, but most of them are
+  either too technical, outdated, too hard to find or simply incomplete.</p>
+
+  <p>That is why I decided to write this guide.  My aim is to guide newcomers from their very first
+  contact with Core War and Redcode to the point where they can write a working (if not successful)
+  warrior, and are able to proceed to the more technical stuff.</p>
+
+  <p>To be honest, I am still a beginner in this game myself.  I know the language fairly well, but
+  have yet to produce a really successful warrior.  But I decided not to wait until I've gotten more
+  experienced and instead write this guide as soon as possible while I still have a fresh memory of
+  what it's like to be a new player struggling to comprehend the peculiarities of the game.</p>
+
+  <p>This guide is intended for the <em>very</em> beginners.  No previous knowledge of any assembly
+  language (or programming in general) should be needed, though knowing the general idea should help
+  in understanding the basic terms.  Redcode, especially the modern versions, may look like any
+  assembly code, but it is more abstract than most and quite different in details from any other
+  assembly language.</p>
+
+  <p>The flavor of Redcode used in this guide is (mostly) the current <i>de facto</i> standard, the
+  ICWS '94 Standard Draft with pMARS 0.8 extensions.  (Sort of like the Netscape extensions to
+  HTML...  Hmm...  Luckily we still don't have a Microsoft Corewar Simulator.  Maybe they think the
+  market's too small.)  The earlier '88 standard will be mentioned briefly, but this guide is mostly
+  about the '94 standard.  For those who want to learn it, there are plenty of '88 tutorials
+  available on the Web.</p>
+
+  <p><strong>Important</strong>: There is no simple way to teach Redcode -- or any programming
+  language -- in a strictly linear way.  While I've tried to organise this guide into a somewhat
+  sensible order, <em>if you want to skip around, by all means do so</em>.  That's what the <a
+  href="#contents">contents</a> section is for.</p>
+
+  <p>To maintain any coherency at all, I've often been forced to show you things and then explain
+  them a few chapters later.  If you don't seem to understand something, read on for a while.  If you
+  still can't figure it out, try browsing around to see if it's explained in some other chapter.</p>
+
+  <p>Everybody learns in a different way, and so any order you decide to read the chapters in is
+  probably better than the one I've chosen.  But if you think something is boring and leave it
+  completely unread, the chances are you'll miss some important piece if information.  I've tried to
+  mark important parts with <em>emphasis</em>, so you know where to stop and think, but try to
+  read everything carefully.  I simply can't spell everything out, or this guide would grow too long
+  to read.</p>
+
+  <hr>
+
+  <h2><a name="introduction">Introduction to Core War</a></h2>
+
+  <h3><a name="intro_what">What is Core War?</a></h3>
+
+  <p><dfn>Core War</dfn> (or <dfn>Core Wars</dfn>) is a programming game where assembly programs try
+  to destroy each other in the memory of a simulated computer.  The programs (or
+  <dfn>warriors</dfn>) are written in a special language called <dfn>Redcode</dfn>, and run by a
+  program called <dfn>MARS</dfn> (<dfn>Memory Array Redcode Simulator</dfn>).</p>
+
+  <p>Both Redcode and the MARS environment are much simplified and abstracted compared to ordinary
+  computer systems.  This is a good thing, since CW programs are written for performance, not for
+  clarity.  If the game used an ordinary assembly language, there might be two or three people in the
+  world capable of writing an effective and durable warrior, and even they wouldn't probably be able
+  to understand it fully.  It would certainly be challenging and full of potential, but it'd probably
+  take years to reach even a moderate level of skill.</p>
+
+  <h3><a name="intro_how">How does it work?</a></h3>
+
+  <p>The system in which the programs run is quite simple.  The <dfn>core</dfn> (the memory of the
+  simulated computer) is a continuous array of instructions, empty except for the competing
+  programs.  The core wraps around, so that after the last instruction comes the first one again.</p>
+
+  <p>In fact, the programs have no way of knowing where the core ends, since there are no absolute
+  addresses.  That is, the address 0 doesn't mean the first instruction in the memory, but the
+  instruction that contains the address.  The next instruction is 1, and the previous one obviously
+  -1.</p>
+
+  <p>As you can see, the basic unit of memory in Core War is one instruction, instead of one byte as
+  is usual.  Each Redcode instruction contains three parts: the <dfn>OpCode</dfn> itself, the source
+  address (a.k.a. the <dfn>A-field</dfn>) and the destination address (the <dfn>B-field</dfn>).
+  While it is possible for example to move data between the A-field and the B-field, in general you
+  need to treat the instructions as indivisible blocks.</p>
+
+  <p>The execution of the programs is equally simple.  The MARS executes one instruction at a time,
+  and then proceeds to the next one in the memory, unless the instruction explicitly tells it to
+  jump to another address.  If there is more than one program running, (as is usual) the programs
+  execute alternately, one instruction at a time.  The execution of each instruction takes the same
+  time, one cycle, whether it is <code class=op>MOV</code>, <code class=op>DIV</code> or even <code
+  class=op>DAT</code> (which kills the process).</p>
+
+  <hr>
+
+  <h2><a name="starting">Starting with Redcode</a></h2>
+
+  <h3><a name="start_instr">The Redcode instruction set</a></h3>
+
+  <p>The number of instructions in Redcode has grown with each new standard, from the original
+  number of about 5 to the current 18 or 19.  And this doesn't even include the new modifiers and
+  addressing modes that allow literally hundreds of combinations.  Luckily, we don't need to learn
+  all the combinations.  It is enough to remember the instructions, and how the modifiers change
+  them.</p>
+
+  <p>Here is a list of all the instructions used in Redcode:</p>
+
+  <ul>
+    <li><code class=op>DAT</code> -- data (kills the process)</li>
+
+    <li><code class=op>MOV</code> -- move (copies data from one address to another)</li>
+
+    <li><code class=op>ADD</code> -- add (adds one number to another)</li>
+
+    <li><code class=op>SUB</code> -- subtract (subtracts one number from another)</li>
+
+    <li><code class=op>MUL</code> -- multiply (multiplies one number with another)</li>
+
+    <li><code class=op>DIV</code> -- divide (divides one number with another)</li>
+
+    <li><code class=op>MOD</code> -- modulus (divides one number with another and gives the
+    remainder)</li>
+
+    <li><code class=op>JMP</code> -- jump (continues execution from another address)</li>
+
+    <li><code class=op>JMZ</code> -- jump if zero (tests a number and jumps to an address if it's
+    0)</li>
+
+    <li><code class=op>JMN</code> -- jump if not zero (tests a number and jumps if it isn't 0)</li>
+
+    <li><code class=op>DJN</code> -- decrement and jump if not zero (decrements a number by one, and
+    jumps unless the result is 0)</li>
+
+    <li><code class=op>SPL</code> -- split (starts a second process at another address)</li>
+
+    <li><code class=op>CMP</code> -- compare (same as <code class=op>SEQ</code>)</li>
+
+    <li><code class=op>SEQ</code> -- skip if equal (compares two instructions, and skips the next
+    instruction if they are equal)</li>
+
+    <li><code class=op>SNE</code> -- skip if not equal (compares two instructions, and skips the next
+    instruction if they aren't equal)</li>
+
+    <li><code class=op>SLT</code> -- skip if lower than (compares two values, and skips the next
+    instruction if the <em>first</em> is lower than the <em>second</em>)</li>
+
+    <li><code class=op>LDP</code> -- load from p-space (loads a number from private storage
+    space)</li>
+
+    <li><code class=op>STP</code> -- save to p-space (saves a number to private storage space)</li>
+
+    <li><code class=op>NOP</code> -- no operation (does nothing)</li>
+  </ul>
+
+  <p>Don't worry if some of them seem, to put it mildly, weird.  As I said, Redcode is quite a bit
+  different from more ordinary assembly languages, which results from its abstract nature.</p>
+
+  <h3><a name="start_imp">The Imp</a></h3>
+
+  <p>The truth is, the most important parts of Redcode are the easiest ones.  Most of the basic
+  warrior types were invented before the new instructions and modes existed.  The simplest, and
+  probably the first, Core War program is the <dfn>Imp</dfn>, published by A. K. Dewdney in the
+  original 1984 Scientific American article that first introduced Core War to the public.</p>
+
+  <pre>
+        <span class=op>MOV</span> 0, 1</pre>
+
+  <p>Yes, that's it.  Just one lousy <code class=op>MOV</code>.  But what does it <em>do</em>? <code
+  class=op>MOV</code> of course copies an instruction.  You should recall that all addresses in Core
+  War are relative to the current instruction, so the Imp in fact copies itself to the instruction
+  just after itself.</p>
+
+  <pre>
+        <span class=op>MOV</span> 0, 1         <span class=comment>; this was just executed</span>
+        <span class=op>MOV</span> 0, 1         <span class=comment>; this instruction will be executed next</span></pre>
+
+  <p>Now, the Imp will execute the instruction it just wrote! Since it's exactly the same as the
+  first one, it will once again copy itself one instruction forward, execute the copy, and continue
+  to move forward while filling the core with <code class=op>MOV</code>s.  Since the core has no
+  actual end, the Imp, after filling the whole core, reaches its starting position again and keeps
+  on running happily in circles <i>ad infinitum</i>.
+
+  <p>So the Imp actually creates it's own code as it executes it! In Core War, self-modification is
+  a rule rather than an exception.  You need to be effective to be successful, and that nearly
+  always means changing your code on the fly.  Luckily, the abstract environment makes this a lot
+  easier to follow than in ordinary assembly.</p>
+
+  <p>BTW, it should be obvious that there are no caches in Core War.  Well, actually the
+  <em>current</em> instruction is cached so you can't modify it <em>in the middle</em> of executing
+  it, but maybe we should leave all that for the later...</p>
+
+  <h3><a name="start_dwarf">The Dwarf</a></h3>
+
+  <p>The Imp has one little drawback as a warrior.  It won't win too many games, since when it
+  overwrites another warrior, it too starts to execute the <code class=op>MOV</code><code> 0,
+  1</code> and becomes an imp itself, resulting in a tie.  To kill a program, you'd have to copy a
+  <code class=op>DAT</code> over its code.</p>
+
+  <p>This is just what another classic warrior by Dewdney, the <dfn>Dwarf</dfn>, does.  It "bombs"
+  the core at regularly spaced locations with <code class=op>DAT</code>s, while making sure it won't
+  hit itself.</p>
+
+  <pre>
+        <span class=op>ADD</span> <span class=addr>#</span>4, 3        <span class=comment>; execution begins here</span>
+        <span class=op>MOV</span> 2, <span class=addr>@</span>2
+        <span class=op>JMP</span> -2
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span>0</pre>
+
+  <p>Actually, this isn't precisely what Dewdney wrote, but it works exactly the same way.  The
+  execution begins again at the first instruction.  This time it's an <code class=op>ADD</code>.
+  The <code class=op>ADD</code> instruction adds the source and the destination together, and puts
+  the result in the destination.  If you're familiar with other assembly languages, you may
+  recognise the <code class=addr>#</code> sign as a way of marking immediate addressing.  That is,
+  the <code class=op>ADD</code> adds the number 4 to the instruction at address 3, instead of adding
+  the instruction 4 to the instruction 3.  Since the 3rd instruction after the <code
+  class=op>ADD</code> is the <code class=op>DAT</code>, the result will be:</p>
+
+  <pre>
+        <span class=op>ADD</span> <strong><span class=addr>#</span>4</strong>, 3
+        <span class=op>MOV</span> 2, <span class=addr>@</span>2        <span class=comment>; next instruction</span>
+        <span class=op>JMP</span> -2
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span><strong>4</strong></pre>
+
+  <p>If you add two instructions together, both the A- and the B-fields will be added together
+  independently of each other.  If you add a single number to an instruction, it will by default be
+  added to the B-field.  It's quite possible to use a <code class=addr>#</code> in the B-field of
+  the <code class=op>ADD</code> too.  Then the A-field would be added to the B-field of the <code
+  class=op>ADD</code> itself.</p>
+
+  <p>The immediate addressing mode may seem simple and familiar, but the new <a
+  href="#start_modif">modifiers</a> in the ICWS '94 standard will give it <a href="#deep_imm">an
+  entirely new twist</a>.  But let's look at the Dwarf first.</p>
+
+  <p>The <code class=op>MOV</code> once again presents us with yet another addressing mode: the
+  <code class=addr>@</code> or the indirect addressing mode.  It means that the <code
+  class=op>DAT</code> will not be copied on itself as it seems (what good would that be?), but on
+  the instruction its B-field points to, like this:</p>
+
+  <pre>
+        <span class=op>ADD</span> <span class=addr>#</span>4, 3
+        <span class=op>MOV</span> 2, <strong><span class=addr>@</span></strong>2  <span class=comment>;  --.</span>
+        <span class=op>JMP</span> -2     <span class=comment>;    | +2</span>
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span>4 <span class=comment>; &lt;--' --. The B-field of the MOV points here.</span>
+        <span class=ellipsis>...</span>                 <span class=comment>|</span>
+        <span class=ellipsis>...</span>                 <span class=comment>| +4</span>
+        <span class=ellipsis>...</span>                 <span class=comment>|</span>
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span>4 <span class=comment>; &lt;------' The B-field of the DAT points here.</span></pre>
+
+  <p>As you can see, the <code class=op>DAT</code> will be copied 4 instructions ahead of it.  The
+  next instruction, <code class=op>JMP</code>, simply makes the process jump two instructions
+  backwards, back to the <code class=op>ADD</code>.  Since the <code class=op>JMP</code> ignores its
+  B-field I've left it empty.  The MARS will initialise it for me as a 0.</p>
+
+  <p>By the way, as you see the MARS will not start tracing further chains of indirect addresses.
+  If the indirect operand points to an instruction with a B-field of, say, 4, the actual destination
+  will be 4 instructions after it, regardless of the addressing mode.</p>
+
+  <p>Now the <code class=op>ADD</code> and the <code class=op>MOV</code> will be executed again.
+  When the execution reaches the <code class=op>JMP</code> again, the core looks like this:</p>
+
+  <pre>
+        <span class=op>ADD</span> <span class=addr>#</span>4, 3
+        <span class=op>MOV</span> 2, <span class=addr>@</span>2
+        <span class=op>JMP</span> -2           <span class=comment>; next instruction</span>
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span>8
+        <span class=ellipsis>...</span>
+        <span class=ellipsis>...</span>
+        <span class=ellipsis>...</span>
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span>4
+        <span class=ellipsis>...</span>
+        <span class=ellipsis>...</span>
+        <span class=ellipsis>...</span>
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span>8</pre>
+
+  <p>The Dwarf will keep on dropping <code class=op>DAT</code>s every 4 instructions, until it has
+  looped around the whole core and reached itself again:</p>
+
+  <pre>
+        <span class=ellipsis>...</span>
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span>-8
+        <span class=ellipsis>...</span>
+        <span class=ellipsis>...</span>
+        <span class=ellipsis>...</span>
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span>-4
+        <span class=op>ADD</span> <span class=addr>#</span>4, 3        <span class=comment>; next instruction</span>
+        <span class=op>MOV</span> 2, <span class=addr>@</span>2
+        <span class=op>JMP</span> -2
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span>-4
+        <span class=ellipsis>...</span>
+        <span class=ellipsis>...</span>
+        <span class=ellipsis>...</span>
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span>4
+        <span class=ellipsis>...</span></pre>
+      
+  <p>Now, the <code class=op>ADD</code> will turn the <code class=op>DAT</code> back into <code
+  class=addr>#</code><code>0, </code><code class=addr>#</code><code>0</code>, the <code
+  class=op>MOV</code> will perform an exercise in futility by copying the <code class=op>DAT</code>
+  right where it already is, and the whole process will start again from the beginning.</p>
+
+  <p>This naturally won't work unless the size of the core is divisible by 4, since otherwise the
+  Dwarf would hit an instruction from 1 to 3 instructions behind the <code class=op>DAT</code>, thus
+  killing itself.  Luckily, the most popular core size is currently 8000, followed by 8192, 55400,
+  800, all of them divisible by 4, so our Dwarf should be safe</p>
+
+  <p>As a side note, including the <code class=op>DAT</code><code class=addr> #</code><code>0,
+  </code><code class=addr>#</code><code>0</code> in the warrior wouldn't really have been necessary;
+  The instruction the core is initially filled with, which I've written as three dots (<code
+  class=ellipsis>...</code>) is actually <code class=op>DAT</code><code> 0, 0</code>.  I'll continue
+  to use the dots to describe empty core, since is it shorter and easier to read.</p>
+
+  <h3><a name="start_modes">The addressing modes</a></h3>
+
+  <p>In the first versions of Core War the only addressing modes were the immediate (<code
+  class=addr>#</code>), the direct (<code class=addr>$</code> or nothing at all) and the B-field
+  indirect (<code class=addr>@</code>) addressing modes.  Later, the predecrement addressing mode,
+  or <code class=addr>&lt;</code>, was added.  It's the same as the indirect mode, except that the
+  pointer will be decremented by one before the target address is calculated.</p>
+
+  <pre>
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span>5
+        <span class=op>MOV</span> 0, <strong><span class=addr>&lt;</span></strong>-1       <span class=comment>; next instruction</span></pre>
+
+  <p>When this <code class=op>MOV</code> is executed, the result will be:</p>
+
+  <pre>
+        <span class=op>DAT</span> <span class=addr>#</span>0, <span class=addr>#</span><strong>4</strong> <span class=comment>;  ---.</span>
+        <span class=op>MOV</span> 0, <span class=addr>&lt;</span>-1 <span class=comment>;     |</span>
+        <span class=ellipsis>...</span>        <span class=comment>;     | +4</span>
+        <span class=ellipsis>...</span>        <span class=comment>;     |</span>
+        <span class=op>MOV</span> 0, <span class=addr>&lt;</span>-1 <span class=comment>; &lt;---'</span></pre>
+
+  <p>The ICWS '94 standard draft added four more addressing modes, mostly to deal with A-field
+  indirection, to give a total of 8 modes:</p>
+
+  <ul>
+    <li><code class=addr>#</code> -- immediate</li>
+
+    <li><code class=addr>$</code> -- direct (the <code class=addr>$</code> may be omitted)</li>
+
+    <li><code class=addr>*</code> -- A-field indirect</li>
+
+    <li><code class=addr>@</code> -- B-field indirect</li>
+
+    <li><code class=addr>{</code> -- A-field indirect with predecrement</li>
+
+    <li><code class=addr>&lt;</code> -- B-field indirect with predecrement</li>
+
+    <li><code class=addr>}</code> -- A-field indirect with postincrement</li>
+
+    <li><code class=addr>&gt;</code> -- B-field indirect with postincrement</li>
+  </ul>
+
+  <p>The postincrement modes are similar to the predecrement, but the pointer will be
+  <em>incremented</em> by one <em>after</em> the instruction has been executed, as you might have
+  guessed.</p>
+
+  <pre>
+        <span class=op>DAT</span> <span class=addr>#</span>5, <span class=addr>#</span>-10
+        <span class=op>MOV</span> -1, <strong><span class=addr>}</span></strong>-1      <span class=comment>; next instruction</span></pre>
+
+  <p>will after execution look like this:</p>
+
+  <pre>
+        <span class=op>DAT</span> <span class=addr>#</span><strong>6</strong>, <span class=addr>#</span>-10 <span class=comment>;  --.</span>
+        <span class=op>MOV</span> -1, <span class=addr>}</span>-1  <span class=comment>;    |</span>
+        <span class=ellipsis>...</span>          <span class=comment>;    |</span>
+        <span class=ellipsis>...</span>          <span class=comment>;    | <strong>+5</strong></span>
+        <span class=ellipsis>...</span>          <span class=comment>;    |</span>
+        <span class=op>DAT</span> <span class=addr>#</span><strong>5</strong>, <span class=addr>#</span>-10 <span class=comment>; &lt;--'</span></pre>
+
+  <p>One important thing to remember about the predecrement and postincrement modes is that the
+  pointers will be in-/decremented even if they're not used for anything.  So <code
+  class=op>JMP</code><code> -1, </code><code class=addr>&lt;</code><code>100</code> would decrement
+  the instruction 100 even if the value it points to isn't used for anything.  Even <code
+  class=op>DAT</code><code class=addr> &lt;</code><code>50, </code><code
+  class=addr>&lt;</code><code>60</code> will decrement the addresses in addition to killing the
+  process.</p>
+
+
+  <h3><a name="start_queue">The process queue</a></h3>
+
+  <p>If you looked at the instruction table a few chapters above closely, you may have wondered
+  about an instruction named <code class=op>SPL</code>.  There's certainly nothing like that in any
+  ordinary assembly language...</p>
+
+  <p>Quite early in the history of Core War, it was suggested that adding multitasking to the game
+  would make it much more interesting.  Since the rough time-slicing techniques used in ordinary
+  systems wouldn't fit in the abstract Core War environment (most importantly, you'd need an OS to
+  control them), a system was invented whereby each process is executed for one cycle in turn.</p>
+
+  <p>The instruction used to create new processes is the <code class=op>SPL</code>.  It takes an
+  address as a parameter in its A-field, just like <code class=op>JMP</code>.  The difference
+  between <code class=op>JMP</code> and <code class=op>SPL</code> is that, in addition to starting
+  execution at the new address, <code class=op>SPL</code> <em>also</em> continues execution at the
+  next instruction.</p>
+
+  <p>The two -- or more -- processes thus created will share the processing time equally.  Instead
+  of a single process counter that would show the current instruction, the MARS has a <dfn>process
+  queue</dfn>, a list of processes that are executed repeatedly in the order in which they were
+  started.  New processes created by <code class=op>SPL</code> are added just after the current
+  process, while those that execute a <code class=op>DAT</code> will be removed from the queue.  If
+  all the processes die, the warrior will lose.</p>
+
+  <p>It's important to remember that each program has its <em>own</em> process queue.  With more
+  than one program in the core, they will be executed alternately, <em>one cycle at a time
+  regardless of the length of their process queue</em>, so that the processing time will always be
+  divided equally.  If <span class=prog1>program A</span> has 3 processes, and <span
+  class=prog2>program B</span> only 1, the order of execution will look like:</p>
+
+  <ol>
+    <li><span class=prog1>program A, process 1</span>,</li>
+    <li><span class=prog2>program B, process 1</span>,</li>
+    <li><span class=prog1>program A, process 2</span>,</li>
+    <li><span class=prog2>program B, process 1</span>,</li>
+    <li><span class=prog1>program A, process 3</span>,</li>
+    <li><span class=prog2>program B, process 1</span>,</li>
+    <li><span class=prog1>program A, process 1</span>,</li>
+    <li><span class=prog2>program B, process 1</span>,<br>...</li>
+  </ol>
+
+  <p>And finally, a small example of the use of <code class=op>SPL</code>.  More information will be
+  available in the later chapters.</p>
+
+  <pre>
+        <span class=op>SPL</span> 0            <span class=comment>; execution starts here</span>
+        <span class=op>MOV</span> 0, 1</pre>
+
+  <p>Since the <code class=op>SPL</code> points to itself, after one cycle the processes will be
+  like this:</p>
+
+  <pre>
+        <span class=op>SPL</span> 0            <span class=comment>; second process is here</span>
+        <span class=op>MOV</span> 0, 1         <span class=comment>; first process is here</span></pre>
+
+  <p>After both of the processes have executed, the core will now look like:</p>
+
+  <pre>
+        <span class=op>SPL</span> 0            <span class=comment>; third process is here</span>
+        <span class=op>MOV</span> 0, 1         <span class=comment>; second process is here</span>
+        <span class=op>MOV</span> 0, 1         <span class=comment>; first process is here</span></pre>
+
+  <p>So this code evidently launches a series of imps, one after another.  It will keep on doing
+  this until the imps have circled the whole core and overwrite the <code class=op>SPL</code>.</p>
+
+  <p>The size of the process queue for each program is limited.  If the maximum number of processes
+  has been reached, <code class=op>SPL</code> continues execution <em>only at the next
+  instruction</em>, effectively duplicating the behaviour of <code class=op>NOP</code>.  In most
+  cases the process limit is quite high, often the same as the length of the core, but it can be
+  lower (even 1, in which case splitting is effectively disabled).</p>
+
+  <p>Oh, and as for thruth often being stranger than fiction, I recently came across a web page
+  titled "Opcodes that should've been".  Amongst some really absurd ones I found "<code>BBW</code> --
+  Branch Both Ways".  As all the opcodes were supposed to be fictitious, I can only conclude that
+  the author wasn't familiar with Redcode..</p>
+
+  <h3><a name="start_modif">The instruction modifiers</a></h3>
+
+  <p>The most important new thing brought by the ICWS '94 standard wasn't the new instructions or
+  the new addressing modes, but the modifiers.  In the old '88 standard the addressing modes alone
+  decide which parts of the instructions are affected by an operation.  For example, <code
+  class=op>MOV</code><code> 1, 2</code> always moves a whole instruction, while <code
+  class=op>MOV</code><code class=addr> #</code><code>1, 2</code> moves a single number.  (and
+  <em>always</em> to the B-field!)</p>
+
+  <p>Naturally, this could cause some difficulties.  What if you wanted to move only the A- and
+  B-fields of an instruction, but not the OpCode? (you'd need to use <code class=op>ADD</code>) Or what if
+  you wanted to move something from the B-field to the A-field? (possible, but very tricky) To
+  clarify the situation, the instruction modifiers were invented.</p>
+
+  <p>The modifiers are suffixes that are added to the instruction to specify which parts of the
+  source and the destination it will affect.  For example, <code class=op>MOV</code><code
+  class=mod>.AB</code><code> 4, 5</code> would move the A-field of the instruction 4 into the
+  B-field of the instruction 5.  There are 7 different modifiers available:</p>
+
+  <ul>
+    <li><code class=op>MOV</code><code class=mod>.A</code> -- moves the A-field of the source into
+    the A-field of the destination</li>
+
+    <li><code class=op>MOV</code><code class=mod>.B</code> -- moves the B-field of the source into
+    the B-field of the destination</li>
+
+    <li><code class=op>MOV</code><code class=mod>.AB</code> -- moves the A-field of the source into
+    the B-field of the destination</li>
+
+    <li><code class=op>MOV</code><code class=mod>.BA</code> -- moves the B-field of the source into
+    the A-field of the destination</li>
+
+    <li><code class=op>MOV</code><code class=mod>.F</code> -- moves both fields of the source into
+    the same fields in the destination</li>
+
+    <li><code class=op>MOV</code><code class=mod>.X</code> -- moves both fields of the source into
+    the <em>opposite</em> fields in the destination</li>
+
+    <li><code class=op>MOV</code><code class=mod>.I</code> -- moves the whole source instruction
+    into the destination</li>
+  </ul>
+
+  <p>Naturally the same modifiers can be used for all instructions, not just for <code
+  class=op>MOV</code>.  Some instructions like <code class=op>JMP</code> and <code
+  class=op>SPL</code>, however, don't care about the modifiers.  (Why should they? They don't handle
+  any actual data, they just jump around.)</p>
+
+  <p>Since not all the modifiers make sense for all the instructions, they will default to the
+  closest one that does make sense.  The most common case involves the <code class=mod>.I</code>
+  modifier: To keep the language simple and abstract no numerical equivalents have been defined for
+  the OpCodes, so using mathematical operations on them wouldn't make any sense at all.  This means
+  that for all instructions except <code class=op>MOV</code>, <code class=op>SEQ</code> and <code
+  class=op>SNE</code> (and <code class=op>CMP</code> which is just an alias for <code
+  class=op>SEQ</code>) the <code class=mod>.I</code> modifier will mean the same as the <code
+  class=mod>.F</code>.</p>
+
+  <p>Another thing to remember about the <code class=mod>.I</code> and the <code class=mod>.F</code>
+  is that the addressing modes too are part of the OpCode, and are not copied by <code
+  class=op>MOV</code><code class=mod>.F</code></p>
+
+  <p>We can now rewrite the old programs to use modifiers as an example.  The Imp would naturally be
+  <code class=op>MOV</code><code class=mod>.I</code><code> 0, 1</code>.  The Dwarf would become:</p>
+
+  <pre>
+        <span class=op>ADD</span><span class=mod>.AB</span> <span class=addr>#</span>4, 3
+        <span class=op>MOV</span><span class=mod>.I</span>  2, <span class=addr>@</span>2
+        <span class=op>JMP</span>    -2
+        <span class=op>DAT</span>    <span class=addr>#</span>0, <span class=addr>#</span>0</pre>
+
+  <p>Note that I've left out the modifiers for <code class=op>JMP</code> and <code
+  class=op>DAT</code> since they don't use them for anything.  The MARS turns them into (for
+  example) <code class=op>JMP</code><code class=mod>.B</code> and <code class=op>DAT</code><code
+  class=mod>.F</code>, but who cares?</p>
+
+  <p>Oh, one more thing.  How did I know which modifier to add to which instruction? (and, more
+  importantly, how does the MARS add them if we leave them off?) Well, you can usually do it with a
+  bit of common sense, but the '94 standard does defines a set of rules for that purpose.</p>
+
+  <dl>
+  <dt><code class=op>DAT</code>, <code class=op>NOP</code></dt>
+
+    <dd>Always <code class=mod>.F</code>, but it's ignored.</dd>
+
+  <dt><code class=op>MOV</code>, <code class=op>SEQ</code>, <code class=op>SNE</code>, <code
+  class=op>CMP</code></dt>
+
+    <dd>If A-mode is immediate, <code class=mod>.AB</code>,<br> if B-mode is immediate and A-mode
+    isn't, <code class=mod>.B</code>,<br> if neither mode is immediate, <code
+    class=mod>.I</code>.</dd>
+
+  <dt><code class=op>ADD</code>, <code class=op>SUB</code>, <code class=op>MUL</code>, <code
+  class=op>DIV</code>, <code class=op>MOD</code></dt>
+
+    <dd>If A-mode is immediate, <code class=mod>.AB</code>,<br> if B-mode is immediate and A-mode
+    isn't, <code class=mod>.B</code>,<br> if neither mode is immediate, <code
+    class=mod>.F</code>.</dd>
+
+  <dt><code class=op>SLT</code>, <code class=op>LDP</code>, <code class=op>STP</code></dt>
+
+    <dd>If A-mode is immediate, <code class=mod>.AB</code>,<br> if it isn't, (always!) <code
+    class=mod>.B</code>.</dd>
+
+  <dt><code class=op>JMP</code>, <code class=op>JMZ</code>, <code class=op>JMN</code>, <code
+  class=op>DJN</code>, <code class=op>SPL</code></dt>
+
+    <dd>Always <code class=mod>.B</code> (but it's ignored for <code class=op>JMP</code> and <code
+    class=op>SPL</code>).</dd>
+  </dl>
+
+  <hr>
+
+  <h2><a name="deeper">Diving deeper into the '94 standard</a></h2>
+
+  <h3><a name="deep_imm">The # is more than it seems...</a></h3>
+
+  <p>The defined behavior of the immediate addressing mode (<code class=addr>#</code>) in the '94
+  standard is quite unusual.  While the standard is 100% compatible with the old syntax, the
+  immediate addressing has been defined in a very clever and unique way that lets it be used
+  logically with all the instructions and modifiers, and makes it a very powerful tool.</p>
+
+  <p>Looking at the modifiers, you might wonder what <code class=op>MOV</code><code
+  class=mod>.F</code><code class=addr> #</code><code>7, 10</code> would do.  <code
+  class=mod>.F</code> should move both fields, but there's only one number in the source?? Would it
+  move 7 into both fields of the destination?</p>
+
+  <p>No, it definitely wouldn't.  In fact, it would move 7 into the A-field of the destination, and
+  <em>10</em> into the B-field! Why?</p>
+
+  <p>The reason is that, in the '94 syntax, the source (and the destination) is <em>always</em> a
+  whole instruction.  In the case of immediate addressing, it's simply always the current
+  instruction, (ie. 0) whatever the actual value.  So <code class=op>MOV</code><code
+  class=mod>.F</code><code class=addr> #</code><code>7, 10</code> moves both fields of the source
+  (0) to the destination (10).  Surprising, isn't it?</p>
+
+  <p>The same even works for <code class=op>MOV</code><code class=mod>.I</code>.  This way of
+  defining immediate addressing also lets us use instructions which, even without modifiers,
+  wouldn't make sense in the '88 standard such as <code class=op>JMP</code><code class=addr>
+  #</code><code>1234</code>.  Obviously you can't jump into a number, but you can jump into the
+  address of that number, or 0.  This offers many obvious advantages, since not only can we store
+  data in the A-field for "free", but the code will survive even if someone decrements it.  We could
+  now rewrite the earlier imp-making code to be a bit more robust:</p>
+
+  <pre>
+        <span class=op>SPL</span>    <span class=addr>#</span>0, <span class=addr>}</span>1
+        <span class=op>MOV</span><span class=mod>.I</span>  <span class=addr>#</span>1234, 1</pre>
+
+  <p>It still works the same, but now the A-fields are free.  Just for fun I've let the <code
+  class=op>SPL</code> increment the A-field of the imp, so that all the imps will look different.
+  Since <code class=op>SPL</code> doesn't use its B-field, that increment is also "free".  It works,
+  trust me -- or try it yourself!</p>
+
+
+  <h3><a name="deep_math">Modulo math</a></h3>
+
+  <p>You should already know that addresses in the core wrap around, so that the instruction one
+  coresize ahead or behind the current instruction refers to the current instruction itself.  But in
+  fact, this effect goes much deeper: all numbers in Core War are converted into the range 0 -
+  <var>coresize</var>-1.</p>
+
+  <p>For those of you who already know about programming and limited-range integer math, let's just
+  say that all numbers in Core War are considered unsigned, with the maximum integer being
+  <var>coresize</var>-1.  If that didn't clarify everything, read on...</p>
+
+  <p>In effect, all numbers in Core War are divided by the length of the core, or
+  <var>coresize</var>, and only the remainder is kept.  You might try thinking of a calculator with
+  a display of only 8 numbers that throws off any digits past that, so that 100*12345678
+  (1234567800, of course) is only shown (and stored) as 34567800.  Similarly, in a core of 8000
+  instructions, 7900+222 (8122) becomes only 122.</p>
+
+  <p>What happens to negative numbers, then? They are normalised too, by adding <var>coresize</var>
+  until they become positive.  This means that what I wrote as -1 is actually stored by the MARS as
+  <var>coresize</var>-1, or in an 8000 instruction core, as is common, 7999.</p>
+
+  <p>Of course, this makes no difference for the addresses, which wrap around anyway.  In fact, it
+  doesn't make any difference to the simple math instructions like <code class=op>ADD</code> or
+  <code class=op>SUB</code> either, since with <var>coresize</var>=8000, 6+7998 gives the same
+  result of 4 (or 8004) as does 6-2.</p>
+
+  <p>What's the problem, then? Well, there are a few instructions where it makes a difference.  Such
+  instructions as <code class=op>DIV</code>, <code class=op>MOD</code> and <code class=op>SLT</code>
+  always treat numbers as unsigned.  This means that -2/2 isn't -1, but (<var>coresize</var>-2)/2 =
+  (<var>coresize</var>/2)-1 (or for <var>coresize</var>=8000, 7998/2=3999, not 7999).  Similarly,
+  <code class=op>SLT</code> considers -2 (or 7998) to be <em>greater</em> than 0! In fact, 0 is the
+  lowest possible number in Core War, so all other numbers are considered greater than it.</p>
+
+
+  <h3><a name="deep_instr">The '94 standard instruction by instruction</a></h3>
+
+  <p>Ok, your patience has been rewarded.  Until now I've given you only some separate pieces of
+  information.  Now it's time to tie it all together by describing each instruction to you.</p>
+
+  <p>Of course I could've listed them at the very beginning, when I shoved you <a
+  href="#start_instr">the instruction set</a>, and it probably would've saved you from a lot of
+  guessing.  But I had -- at least in my opinion -- a very good reason to wait.  Not only did I want
+  to show you some practical code before getting into the boring theoretical stuff, but most of all
+  I wanted you to grasp at least the basic idea of addressing modes and modifiers before describing
+  the instructions in detail.  If I had described the instructions before the modifiers, I would've
+  had to first teach you the older '88 rules, and later teach it all again with modifiers included.
+  It's not a bad way to learn Redcode, but it'd make this guide unnecessarily complicated.</p>
+
+  <dl>
+  <dt><code class=op>DAT</code></dt>
+
+    <dd>Originally, as its name shows, <code class=op>DAT</code> was intended for storing data, just
+    like in most languages.  Since in Core War you want to minimise the number of instructions,
+    storing pointers etc. in unused parts of other instructions is common.  This means that the most
+    important thing about <code class=op>DAT</code> is that executing it kills a process.  In fact,
+    since the '94 standard has no illegal instructions, <code class=op>DAT</code> is defined as a
+    completely legal instruction, which <i>removes the currently executing process from the process
+    queue</i>.  Sounds like splitting hairs, maybe, but precisely defining the obvious can often
+    save a lot of confusion.<br><br>
+
+    The modifiers have no effect on <code class=op>DAT</code>, and in fact some MARSes remove them.
+    However, remember that predecrementing and postincrementing are always done even if the value
+    isn't used for anything.  One unusual thing about <code class=op>DAT</code>, a relic of the
+    previous standards, is that if it has only one argument it's placed in the
+    <em>B-field</em>.</dd>
+
+  <dt><code class=op>MOV</code></dt>
+
+    <dd><code class=op>MOV</code> copies data from one instruction to another.  If you don't know
+    everything about that already, you should probably re-read the earlier chapters.  <code
+    class=op>MOV</code> is one of the few instructions that support <code class=mod>.I</code>, and
+    that's its default behavior if no modifier is given (and if neither of the fields uses immediate
+    addressing).</dd>
+
+  <dt><code class=op>ADD</code></dt>
+
+    <dd><code class=op>ADD</code> adds the source value(s) to the destination.  The modifiers work
+    like with <code class=op>MOV</code>, except that <code class=mod>.I</code> isn't supported but
+    behaves like <code class=mod>.F</code>.  (What would <code class=op>MOV</code><code
+    class=mod>.AB</code>+<code class=op>DJN</code><code class=mod>.F</code> be?) Also remember that
+    all math in Core War is done <a href="#deep_math">modulo coresize</a>.</dd>
+
+  <dt><code class=op>SUB</code></dt>
+
+    <dd>This instruction works exactly like <code class=op>ADD</code>, except for one fairly obvious
+    difference.  In fact, all the "arithmetic-logical" instructions work pretty much the
+    same...</dd>
+
+  <dt><code class=op>MUL</code></dt>
+
+    <dd>...as is the case for <code class=op>MUL</code> too.  If you can't guess what it does,
+    you've probably missed something very important.</dd>
+
+  <dt><code class=op>DIV</code></dt>
+
+    <dd><code class=op>DIV</code> too works pretty much the same as <code class=op>MUL</code> and
+    the others, but there are a few things to keep in mind.  First of all, this is <a
+    href="#deep_math">unsigned division</a>, which can give surprising results sometimes.
+    <strong>Division by zero kills the process</strong>, just like executing a <code
+    class=op>DAT</code>, and leaves the destination unchanged.  If you use <code
+    class=op>DIV</code><code class=mod>.F</code> or <code class=mod>.X</code> to divide two numbers
+    at a time and one of the divisors is 0, the other division will still be done as normal.</dd>
+
+  <dt><code class=op>MOD</code></dt>
+
+    <dd>Everything I said about <code class=op>DIV</code> applies here too, including the division
+    by zero part.  Remember that the result of a calculation like <code class=op>MOD</code><code
+    class=mod>.AB</code><code class=addr> #</code><code>10, </code><code
+    class=addr>#</code><code>-1</code> depends on the size of the core.  For the common
+    8000-instruction core the result would be 9 (7999 mod 10).</dd>
+
+  <dt><code class=op>JMP</code></dt>
+
+    <dd><code class=op>JMP</code> moves execution to the address its A-field points to.  The obvious
+    but important difference to the "math" instructions is that <code class=op>JMP</code> only cares
+    about the address, not the data that address points to.  Another significant difference is that
+    <code class=op>JMP</code> doesn't use its B-field for anything (and so also ignores its
+    modifier).  Being able to jump (or split) into two addresses would simply be too powerful, and
+    it'd make implementing the next three instructions quite difficult.  Remember that you can still
+    place an increment or a decrement in the unused B-field, with luck damaging your opponent's
+    code.</dd>
+
+  <dt><code class=op>JMZ</code></dt>
+
+    <dd>This instruction works like <code class=op>JMP</code>, but instead of ignoring its B-field,
+    it tests the value(s) it points to and only jumps if it's zero.  Otherwise the execution will
+    continue at the next address.  Since there's only one instruction to test, the choice of
+    modifiers is fairly limited.  <code class=mod>.AB</code> means the same as <code
+    class=mod>.B</code>, <code class=mod>.BA</code> the same as <code class=mod>.A</code>, and <code
+    class=mod>.X</code> and <code class=mod>.I</code> the same as <code class=mod>.F</code>.  If you
+    test both fields of an instruction with <code class=op>JMZ</code><code class=mod>.F</code>, it
+    will jump <em>only if both fields are zero</em>.</dd>
+
+  <dt><code class=op>JMN</code></dt>
+
+    <dd><code class=op>JMN</code> works like <code class=op>JMZ</code>, but jumps if the value
+    tested is <em>not</em> zero (surprise, surprise...).  <code class=op>JMN</code><code
+    class=mod>.F</code> jumps if <em>either of the fields is non-zero</em>.</dd>
+
+  <dt><code class=op>DJN</code></dt>
+
+    <dd><code class=op>DJN</code> is like <code class=op>JMN</code>, but the value(s) are
+    decremented by one <em>before</em> testing.  This instruction is useful for making a loop
+    counter, but it can also be used to damage your opponent.</dd>
+
+  <dt><code class=op>SPL</code></dt>
+
+    <dd>This is the big one.  The addition of <code class=op>SPL</code> into the language was
+    probably the most significant change ever made to Redcode, only rivalled perhaps by the
+    introduction of the ICWS '94 standard.  <code class=op>SPL</code> works like <code
+    class=op>JMP</code> but the execution <em>also</em> continues at the next instruction, so that
+    the process is "split" into two new ones.  The process at the next instruction executes
+    <em>before</em> the one which jumped to a new address, which is a small but <em>very</em>
+    important detail.  (Many, if not most, modern warriors wouldn't work without it!) If the
+    max. number of processes has been reached, <code class=op>SPL</code> works like <code
+    class=op>NOP</code>.  Like <code class=op>JMP</code>, <code class=op>SPL</code> ignores its
+    B-field and its modifier.</dd>
+
+  <dt><code class=op>SEQ</code></dt>
+
+    <dd><code class=op>SEQ</code> compares two instructions, and skips the next instruction if they
+    are equal.  (It always jumps only those two instructions forward, since there's no room for a
+    jump address.)  Since the instructions are compared only for equality, using the <code
+    class=mod>.I</code> modifier is supported.  Quite naturally, with the modifiers <code
+    class=mod>.F</code>, <code class=mod>.X</code> and <code class=mod>.I</code> the next
+    instruction will be skipped only if <em>all</em> the fields are equal.</dd>
+
+  <dt><code class=op>SNE</code></dt>
+
+    <dd>Ok, you guessed it.  This instruction skips the next instruction if the instructions it
+    compares are not equal.  If you compare more than one field, the next instruction will be
+    skipped if <em>any</em> pair of them aren't equal.  (Sounds familiar, doesn't it? just like with
+    <code class=op>JMZ</code> and <code class=op>JMN</code>...)</dd>
+
+  <dt><code class=op>CMP</code></dt>
+
+    <dd><code class=op>CMP</code> is an alias for <code class=op>SEQ</code>.  This was the only name
+    of the instruction before <code class=op>SEQ</code> and <code class=op>SNE</code> were
+    introduced.  Nowadays it doesn't really matter which name you use, since the most popular MARS
+    programs recognise <code class=op>SEQ</code> even in '88 mode.</dd>
+
+  <dt><code class=op>SLT</code></dt>
+
+    <dd>Like the previous instructions, <code class=op>SLT</code> skips the next instruction, this
+    time if the first value is lower than the second.  Since this is an arithmetical comparison
+    instead of a logical one, it makes no sense to use <code class=mod>.I</code>.  It might seem
+    that there should be an instruction called <code>SGT</code>, (<i>skip if greater than</i>) but
+    in most cases the same effect can be achieved simply by swapping the operands of <code
+    class=op>SLT</code>.  Remember that <a href="#deep_math">all values are considered unsigned</a>,
+    so 0 is the smallest possible number and <em>-1 is the largest</em>.</dd>
+
+  <dt><code class=op>NOP</code></dt>
+
+    <dd>Well, this instruction does nothing.  (And it does it really well, too.)  It's almost never
+    used in an actual warrior, but it's very useful in debugging.  Remember that any in- or
+    decrements are still evaluated.</dd>
+  </dl>
+
+  <p>You might notice that two instructions, namely <code class=op>LDP</code> and <code
+  class=op>STP</code> are missing.  They are a fairly recent addition to the language, and will be
+  discussed... um, well right now.  :-)</p>
+
+
+  <h3><a name="deep_space">P-space -- the final frontier</a></h3>
+
+  <p>P-space is the latest addition to Redcode, introduced by pMARS 0.8.  The "P" stands for
+  private, permanent, personal, pathetic and so on, whichever you like.  Basically, the P-space is
+  an area of memory which only your program can access, and which survives between rounds in a
+  multi-round match.</p>
+
+  <p>The P-space is in many ways different from the normal core.  First of all, each P-space
+  location can only store one number, not a whole instruction.  Also, the addressing in P-space is
+  absolute, ie. the P-space address 1 is always 1 regardless of where in the core the instruction
+  containing it is.  And last but not least, the P-space can only be accessed by two special
+  instructions, <code class=op>LDP</code> and <code class=op>STP</code>.</p>
+
+  <p>The syntax of these two instructions is a bit unusual.  The <code class=op>STP</code>, for
+  example has an ordinary value in the core as its source, which is put into the P-space field
+  pointed to by the destination.  So the P-space location isn't determined by the destination
+  <em>address</em>, but by its <em>value</em>, ie. the value that would be overwritten if this were
+  a <code class=op>MOV</code>.</p>
+
+  <p>So <code class=op>STP</code><code class=mod>.AB</code><code class=addr> #</code><code>4,
+  </code><code class=addr>#</code><code>5</code> for example would put the <em>value</em> 4 into the
+  <em>P-space field</em> 5.  Similarly,</p>
+
+  <pre>
+        <span class=op>STP</span><span class=mod>.B</span>  2, 3
+        <span class=ellipsis>...</span>
+        <span class=op>DAT</span>    <span class=addr>#</span>0, <span class=addr>#</span>10
+        <span class=op>DAT</span>    <span class=addr>#</span>0, <span class=addr>#</span>7</pre>
+
+  <p>would put the value 10 into the P-space field <strong>7</strong>, not 3! This can get pretty
+  confusing if the <code class=op>STP</code> itself uses indirect addressing, which leads into a
+  sort of "double-indirect" addressing system.</p>
+
+  <p><code class=op>LDP</code> works the same way, except that now the source is a P-space field and
+  the destination a core instruction.  The P-space location 0 is a special read-only location.  Any
+  writes to it will be ignored, and it is initialised to a special value before each round.  This
+  value is -1 for the first round, 0 the program died in the previous round, and otherwise the
+  number of surviving programs.  This means that, for one-on-one matches, 0 means a loss, 1 a win
+  and 2 a tie.</p>
+
+  <p>The size of the P-space is usually smaller than that of the core, typically 1/16 of the core
+  size.  The addresses in the P-space wrap around just like in the core.  The size of the P-space
+  must naturally be a factor of the core size, or something weird will happen.</p>
+
+  <p>There is one little peculiarity in the pMARS implementation of P-space.  Since the intention
+  was to keep access to P-space slow, loading or saving two P-space fields with one instruction
+  isn't allowed.  This is a Good Thing, but the result is at the very least a kludge.  What this
+  actually means is that <code class=op>LDP</code><code class=mod>.F</code>, <code
+  class=mod>.X</code> and <code class=mod>.I</code> all work like <code class=op>LDP</code><code
+  class=mod>.B</code>! (and the same for <code class=op>STP</code> too, of course)</p>
+
+  <p>Absolutely the most common use of P-space is to use it to select a strategy.  In its simplest
+  form, this means saving the previous strategy in P-space, and switching strategies if the P-space
+  field 0 shows the program lost last time.  This kind of programs are called P-warriors,
+  P-switchers or P-brains (pronounced <i>pea-brains</i>).</p>
+
+  <p>Unfortunately, the P-space isn't as private as it seems.  While your opponent can't read or
+  write your P-space directly, your processes may be captured and made execute your opponents code,
+  including <code class=op>STP</code>s.  This kind of technique is known as brainwashing, and all
+  P-switchers must be prepared for it, and not freak out if the strategy field contains something
+  weird.</p>
+
+  <hr>
+
+  <h2><a name="parser">The parser</a></h2>
+
+  <h3><a name="parse_label">Labels and addresses</a></h3>
+
+  <p>So far, I've written all the addresses in our example programs as instruction numbers, relative
+  to the current instruction.  But in larger programs, this can get annoying, not to mention
+  difficult to read.  Luckily, we don't really have to do this, since Redcode lets us use labels,
+  symbolic constants, macros and all the other things you'd expect of a good assembler.  All we need
+  to do is to label the instructions an refer to them with the labels, and the parser calculates the
+  real addresses for us, like this:</p>
+
+  <pre>
+imp:    <span class=op>mov</span><span class=mod>.i</span>   imp, imp+1</pre>
+
+  <p>Whoa, what happened? This is exactly the same program as the one I showed you in the very
+  beginning.  I've just replaced the numerical addressed with references to a label, "imp".  Of
+  course, in this case doing that is pretty futile.  The only instruction in which the label is used
+  is "imp" itself, in which the label is replaced by 0.</p>
+
+  <p>Before executing it, the parser in the MARS converts all such labels and other symbols into the
+  familiar numbers.  Such a "pre-compiled" Redcode file is called a <dfn>load file</dfn>, for
+  whatever reason.  All MARSes must be able to read load files, but some may not have a real parser.
+  In load file format, the previous code becomes <code class=op>MOV</code><code
+  class=mod>.I</code><code> 0, 1</code>.  We could've also written the same code as</p>
+
+  <pre>
+imp:    <span class=op>mov</span><span class=mod>.i</span>   imp, next
+next:   <span class=op>dat</span>     0, 0            <span class=comment>; or whatever</span></pre>
+
+  <p>In this case, the instruction labelled "next" is one instruction after "imp", so it's replaced
+  by 1.  Remember that the real addresses are still relative numbers, so the Imp will continue to be
+  <code class=op>MOV</code><code class=mod>.I</code><code> 0, 1</code> even after it has copied
+  itself forward over "next".</p>
+
+  <p>Actually, the <code>:</code> in the end of the labels isn't really necessary.  I've used it
+  here to help you see where the labels are, but I usually don't use it in my own programs.  It's a
+  matter of taste.</p>
+
+  <p>Oh, and just in case you're wondering about it, Redcode instructions are case-insensitive.  I
+  like using lower case for the sources since it looks nicer, and upper case only for the compiled,
+  "load file" format (mostly because it's a tradition).</p>
+
+
+  <h3><a name="parse_whole">The whole thing</a></h3>
+
+  <p>While the examples in previous chapters might compile just fine, they're not really complete
+  programs, but parts of one.  A typical redcode file contains some extra information for the
+  MARS.</p>
+
+  <pre>
+<span class=rcline>;redcode-94</span>
+<span class=metakey>;name</span> <span class=metaval>Imp</span>
+<span class=metakey>;author</span> <span class=metaval>A.K. Dewdney</span>
+
+        <span class=pseudo>org</span>     imp
+
+imp:    <span class=op>mov</span><span class=mod>.i</span>   imp, imp+1
+        <span class=pseudo>end</span></pre>
+
+  <p>As you probably have already figured out, everything after a <code class=comment>;</code> is a
+  comment in Redcode.  The lines on the top of this program, however, aren't just ordinary comments.
+  The MARS uses them to get some information about the program.</p>
+
+  <p>The first line, <code class=rcline>;redcode-94</code>, tells the MARS that this really is a
+  Redcode file.  Anything above this line is ignored by the MARS.  Actually, the MARS only expects a
+  line <em>starting</em> with <code class=rcline>;redcode</code>, but we can use the rest of the
+  line to identify the flavor of Redcode used.  Specially, the <a href="#parse_hill">KotH
+  servers</a> read this line themselves, and use it to identify the hill the program is going
+  to.</p>
+
+  <p>The <code class=metakey>;name</code> and <code class=metakey>;author</code> lines just give
+  some information on the program.  Of course you could give it in any format, but using the
+  specific codes lets the MARS read the names and display them when the program is run.</p>
+
+  <p>The line with the word <code class=pseudo>END</code> -- surprise, surprise -- ends the program.
+  Anything after it will be ignored.  Together with <code class=rcline>;redcode</code>, it can be
+  use for example to include Redcode programs in e-mail.</p>
+
+  <p>The line with <code class=pseudo>ORG</code> tells where the execution of the program should
+  start.  This lets us put other instructions before the beginning of the program.  The <code
+  class=pseudo>ORG</code> command is one of the new things included in the '94 standard.  The older
+  syntax, which still works in modern programs too, is to give the starting address as an argument
+  to the <code class=pseudo>END</code>.</p>
+
+  <pre>
+<span class=rcline>;redcode-94</span>
+<span class=metakey>;name</span> <span class=metaval>Imp</span>
+<span class=metakey>;author</span> <span class=metaval>A.K. Dewdney</span>
+
+imp:    <span class=op>mov</span><span class=mod>.i</span>   imp, imp+1
+
+        <span class=pseudo>end</span>     imp</pre>
+
+  <p>Simple, compact, and unfortunately quite illogical.  And with long programs, you have to scroll
+  to the end just to see where it begins.  In Redcode terminology, both <code
+  class=pseudo>ORG</code> and <code class=pseudo>END</code> are called <dfn>pseudo-OpCodes</dfn>.
+  They look like actual instructions, but they're not actually compiled into the program.</p>
+
+  <p>But enough of the Imp.  Let's see what the Dwarf would look like in modern Redcode:</p>
+
+  <pre>
+<span class=rcline>;redcode-94</span>
+<span class=metakey>;name</span> <span class=metaval>Dwarf</span>
+<span class=metakey>;author</span> <span class=metaval>A.K. Dewdney</span>
+<span class=metakey>;strategy</span> <span class=metaval>Bombs the core at regular intervals.</span>
+<span class=comment>;(slightly modified by Ilmari Karonen)</span>
+<span class=assert>;assert</span> CORESIZE % 4 == 0
+
+        <span class=pseudo>org</span>     loop
+
+loop:   <span class=op>add</span><span class=mod>.ab</span>  <span class=addr>#</span>4, bomb
+        <span class=op>mov</span><span class=mod>.i</span>   bomb, <span class=addr>@</span>bomb
+        <span class=op>jmp</span>     loop
+bomb:   <span class=op>dat</span>     <span class=addr>#</span>0, <span class=addr>#</span>0
+
+        <span class=pseudo>end</span></pre>
+
+  <p>The labels make understanding the program a lot easier, don't they? Notice that I've added two
+  new comment lines.  The <code class=metakey>;strategy</code> line describes the program briefly.
+  There may be several such lines in the program.  Most current MARSes ignore them, so you might as
+  well use ordinary comments like the one my name is in, but the Hills display the <code
+  class=metakey>;strategy</code> lines to others.  Sending the previous program to one, something
+  like this might be shown:</p>
+
+  <pre>
+A new challenger has appeared on the '94 hill!
+
+Dwarf by A.K. Dewdney: (length 4)
+;strategy Bombs the core at regular intervals.
+
+[other info here...]</pre>
+
+
+  <h3><a name="parse_ass">The environment and ;assert</a></h3>
+
+  <p>Another new detail in our example code is the <code class=assert>;assert</code> line.  It can
+  be used to make sure the program really works with the current settings.  The Dwarf, for example,
+  kills itself if the size of the core isn't evenly divisible by 4.  So, I've used the line <code
+  class=assert>;assert</code><code> CORESIZE % 4 == 0</code> to make sure it always is.</p>
+
+  <p>The <var>CORESIZE</var> is a predefined constant which tells us the size of the core.  That is,
+  <var>n</var>+<var>CORESIZE</var> is always the same address as <var>n</var>.  The <code>%</code>
+  is the modulus operator, which gives the remainder in a division.  The syntax of the expressions
+  used in the <code class=assert>;assert</code> lines and elsewhere in Redcode is the <em>same as in
+  the C language</em>, although the set of operators is much more limited.</p>
+
+  <p>For those who don't know C, here's some sort of a list of the operators which are used in
+  Redcode expressions:</p>
+
+  <dl class=compact>
+  <dt>Arithmetic:</dt>
+    <dd><code>+</code> addition<br>
+    <code>-</code> subtraction (or negation)<br>
+    <code>*</code> multiplication<br>
+    <code>/</code> division<br>
+    <code>%</code> modulus (remainder)</dd>
+  <dt>Comparison:</dt>
+    <dd><code>==</code> equals<br>
+    <code>!=</code> doesn't equal<br>
+    <code>&lt;</code> is less than<br>
+    <code>&gt;</code> is greater than<br>
+    <code>&lt;=</code> is equal or less than<br>
+    <code>&gt;=</code> is equal or greater than</dd>
+  <dt>Logical:</dt>
+    <dd><code>&amp;&amp;</code> and<br>
+    <code>||</code> or<br>
+    <code>!</code> not</dd>
+  <dt>Assignment:</dt>
+    <dd><code>=</code> assignment to a <a href="#parse_var">variable</a></dd>
+  </dl>
+
+  <p>The <code class=assert>;assert</code> is followed by a logical expression.  If it's false, the
+  program will not be compiled.  In C, a value of 0 means false and anything else means true.  The
+  logical and comparison operators return 1 for true, a fact which can be useful later.</p>
+
+  <p>Typically, <code class=assert>;assert</code> is used to check that the size of the core is the
+  one the constants have been designed for, like <code class=assert>;assert</code><code> CORESIZE ==
+  8000</code>.  If the program uses P-space, its existence may be tested with <code
+  class=assert>;assert</code><code> PSPACESIZE &gt; 0</code>.  Since our example, the Dwarf, is fairly adaptable,
+  I only tested the <var>CORESIZE</var> for divisibility, not for a specific size.  The Imp, which
+  runs with <em>any</em> settings, could use <code class=assert>;assert</code><code> 1</code>, <code
+  class=assert>;assert</code><code> 0 == 0</code> and so on, all of which always evaluate as true.
+  This is useful since otherwise the MARS may complain about a "<samp>missing ;assert line --
+  warrior may not work with current settings.</samp>"</p>
+
+  <p>Some of the predefined constants, such as <var>CORESIZE</var>, are defined by the '94 standard,
+  and others may and have been added.  pMARS 0.8 should support at least the following:</p>
+
+  <ul>
+    <li><var>CORESIZE</var> -- the size of the core (default 8000)</li>
+    <li><var>PSPACESIZE</var> -- the size of the P-space (default 500)</li>
+    <li><var>MAXCYCLES</var> -- the number of cycles until a tie is declared (default 80000)</li>
+    <li><var>MAXPROCESSES</var> -- the maximum size of the process queue (default 8000)</li>
+    <li><var>WARRIORS</var> -- the number of programs in the core (usually 2)</li>
+    <li><var>MAXLENGTH</var> -- the maximum length of a program (default 100)</li>
+    <li><var>CURLINE</var> -- the number of instructions compiled so far (0 to <var>MAXLENGTH</var>)</li>
+    <li><var>MINDISTANCE</var> -- the minimum distance between two warriors (default 100)</li>
+    <li><var>VERSION</var> -- the version of pMARS, multiplied by 100 (80 or more)</li>
+  </ul>
+
+
+  <h3><a name="parse_equ">#define? Well, almost...</a></h3>
+
+  <p>The predefined constants are useful, and so are labels, but is that really all? Can't I use
+  some variables or something?</p>
+
+  <p>Well, Redcode is an assembly language, and they don't really use a lot of variables.  But
+  there's something almost as good, or maybe sometimes even better.  There's a pseudo-OpCode <code
+  class=pseudo>EQU</code> that lets us define our own constants, expressions and even macros.  It
+  looks like this:</p>
+
+  <pre>
+step    <span class=pseudo>equ</span>     2667</pre>
+
+  <p>After this, <var>step</var> is always replaced by 2667.  There's a catch, however.  The
+  replacement is textual, not numerical.  In this case it shouldn't do any harm, but while it makes
+  <code class=pseudo>EQU</code> a very powerful tool, it can create some problems which C
+  programmers should be quite familiar with.  Let's take an example.</p>
+
+  <pre>
+step    <span class=pseudo>equ</span>     2667
+target  <span class=pseudo>equ</span>     step-100
+
+start   <span class=op>mov</span><span class=mod>.i</span>   target, step-target</pre>
+
+  <p>The A-field of the <code class=op>MOV</code> would be 2567, just as it should be.  But the
+  B-field would become 2667-2667-100 == -100, not 2667-(2667-100) == 2667-2567 == 100, as it was
+  probably intended.  The solution is simple.  Just put parentheses around every expression in <code
+  class=pseudo>EQU</code>s, such as "<code>target </code><code class=pseudo>equ</code><code>
+  (step-100)</code>".</p>
+
+  <p>With the modern versions of pMARS it's possible to use multi-line <code
+  class=pseudo>equ</code>s, and thus create some sort of macros.  The way it's done is this:</p>
+
+  <pre>
+dec7    <span class=pseudo>equ</span>     <span class=op>dat</span> <span class=addr>#</span>1, <span class=addr>#</span>1
+        <span class=pseudo>equ</span>     <span class=op>dat</span> <span class=addr>$</span>1, <span class=addr>$</span>1
+        <span class=pseudo>equ</span>     <span class=op>dat</span> <span class=addr>@</span>1, <span class=addr>@</span>1
+        <span class=pseudo>equ</span>     <span class=op>dat</span> <span class=addr>*</span>1, <span class=addr>*</span>1
+        <span class=pseudo>equ</span>     <span class=op>dat</span> <span class=addr>{</span>1, <span class=addr>{</span>1
+        <span class=pseudo>equ</span>     <span class=op>dat</span> <span class=addr>}</span>1, <span class=addr>}</span>1
+        <span class=pseudo>equ</span>     <span class=op>dat</span> <span class=addr>&lt;</span>1, <span class=addr>&lt;</span>1
+
+decoy   dec7
+        dec7            <span class=comment>; 21-instruction decoy</span>
+        dec7</pre>
+
+
+  <h3><a name="parse_for">What's "rof" used for?</a></h3>
+
+  <p>There are a few more features of the pMARS parser left, and this one is perhaps more powerful
+  (and harder to learn) than any of the above.  The <code class=pseudo>FOR</code>/<code
+  class=pseudo>ROF</code> pseudo-OpCodes not only can make your sources shorter and create complex
+  code sequences easily, but they can be used to create conditional code for different settings.</p>
+
+  <p>A <code class=pseudo>FOR</code> block begins with -- yes, you guessed it -- the pseudo-OpCode
+  <code class=pseudo>FOR</code>, followed by the number of times the block should be repeated.  If
+  there's a label before the block, it will be used as a loop counter, like this:</p>
+
+  <pre>
+index   <span class=pseudo>for</span>     7
+        <span class=op>dat</span>     index, 10-index
+        <span class=pseudo>rof</span></pre>
+
+  <p>The block ends, as you can see, with <code class=pseudo>ROF</code>.  (Much better that the old
+  cliché <code>NEXT</code> or <code>REPEAT</code>, I'd say.)  The block above would be parsed by
+  pMARS into:</p>
+
+  <pre>
+        <span class=op>DAT</span><span class=mod>.F</span>   <span class=addr>$</span>1, <span class=addr>$</span>9
+        <span class=op>DAT</span><span class=mod>.F</span>   <span class=addr>$</span>2, <span class=addr>$</span>8
+        <span class=op>DAT</span><span class=mod>.F</span>   <span class=addr>$</span>3, <span class=addr>$</span>7
+        <span class=op>DAT</span><span class=mod>.F</span>   <span class=addr>$</span>4, <span class=addr>$</span>6
+        <span class=op>DAT</span><span class=mod>.F</span>   <span class=addr>$</span>5, <span class=addr>$</span>5
+        <span class=op>DAT</span><span class=mod>.F</span>   <span class=addr>$</span>6, <span class=addr>$</span>4
+        <span class=op>DAT</span><span class=mod>.F</span>   <span class=addr>$</span>7, <span class=addr>$</span>3</pre>
+
+  <p>It's quite possible to have several <code class=pseudo>FOR</code> blocks inside each other.
+  The blocks can even contain <code class=pseudo>EQU</code>s inside them, which lets us create some
+  very interesting code.  An even more useful feature is that the loop counter can be joined to a
+  label with the <code>&amp;</code>-operator.  This is most commonly used to avoid declaring labels
+  twice, but it can be useful for various other purposes as well.</p>
+
+  <pre>
+dest01  <span class=pseudo>equ</span>     1000
+dest02  <span class=pseudo>equ</span>     1234
+dest03  <span class=pseudo>equ</span>     1666
+dest04  <span class=pseudo>equ</span>     (CORESIZE-1111)
+
+jtable
+ix      <span class=pseudo>for</span>     4
+jump&amp;ix <span class=op>spl</span>     dest&amp;ix
+        <span class=op>djn</span><span class=mod>.b</span>   jump&amp;ix, <span class=addr>#</span>ix
+        <span class=pseudo>rof</span></pre>
+
+  <p>This would, after the <code class=pseudo>FOR</code>/<code class=pseudo>ROF</code> is parsed,
+  become:</p>
+
+  <pre>
+jtable
+jump01  <span class=op>spl</span>     dest01
+        <span class=op>djn</span><span class=mod>.b</span>   jump01, <span class=addr>#</span>1
+jump02  <span class=op>spl</span>     dest02
+        <span class=op>djn</span><span class=mod>.b</span>   jump02, <span class=addr>#</span>2
+jump03  <span class=op>spl</span>     dest03
+        <span class=op>djn</span><span class=mod>.b</span>   jump03, <span class=addr>#</span>3
+jump04  <span class=op>spl</span>     dest04
+        <span class=op>djn</span><span class=mod>.b</span>   jump04, <span class=addr>#</span>4</pre>
+
+  <p>As for what this would be useful for, well, that's up to your own imagination.  The only
+  warriors I've seen using such complex expressions are some quickscanners.  The predefined
+  constants can also be used with <code class=pseudo>FOR</code>/<code class=pseudo>ROF</code>, like
+  this:</p>
+
+  <pre>
+<span class=comment>; The main warrior body is here</span>
+
+decoy
+foo     <span class=pseudo>for</span>     (MAXLENGTH-CURLINE)
+        <span class=op>dat</span>     1, 1
+        <span class=pseudo>rof</span>
+
+        <span class=pseudo>end</span></pre>
+
+  <p>This fills the remaining space in your warrior with <code class=op>DAT</code><code> 1,
+  1</code>.  Such a decoy can misdirect other warriors' attacks, provided that you've copied
+  (<dfn>booted</dfn>) your own program away from the decoy.  Note that I've used <var>foo</var> as a
+  loop counter even though it isn't used for anything.  That's because otherwise the MARS would
+  consider <var>decoy</var> to be a loop counter instead of the label it should be.</p>
+
+  <p>Finally, here's an example of some more creative ways of using <code
+  class=pseudo>FOR</code>/<code class=pseudo>ROF</code>:</p>
+
+  <pre>
+<span class=rcline>;redcode-94</span>
+<span class=metakey>;name</span> <span class=metaval>Tricky</span>
+<span class=metakey>;author</span> <span class=metaval>Ilmari Karonen</span>
+<span class=metakey>;strategy</span> <span class=metaval>Some really complex warrior thingy</span>
+<span class=metakey>;strategy</span> <span class=metaval>(A self-explanatory example of conditional code)</span>
+<span class=assert>;assert</span> CORESIZE == 8000 || CORESIZE == 800
+<span class=assert>;assert</span> MAXPROCESSES &gt;= 256 &amp;&amp; MAXPROCESSES &lt; 10000
+<span class=assert>;assert</span> MAXLENGTH &gt;= 100
+
+        <span class=pseudo>org</span>     start
+
+        <span class=pseudo>for</span>     0
+<span class=comment>This is a for/rof comment block.  This will be repeated 0 times, which
+means that everything here will be ignored by the MARS.  This is a
+perfect place for explaining the complex strategy this warrior uses.</span>
+        <span class=pseudo>rof</span>
+
+<span class=comment>;Of course, using ordinary comments is also possible.  You can use</span>
+<span class=comment>;whichever alternative you like.</span>
+
+        <span class=pseudo>for</span>     (CORESIZE == 8000)
+step    <span class=pseudo>equ</span>     normalstep
+<span class=comment>;Since a true comparison returns 1 and a false one 0, this piece of</span>
+<span class=comment>;code is only compiled if the comparison is true.</span>
+        <span class=pseudo>rof</span>
+
+        <span class=pseudo>for</span>     (CORESIZE == 800)
+step    <span class=pseudo>equ</span>     tinystep
+<span class=comment>;And here we can put optimized constants for the smaller core size.</span>
+        <span class=pseudo>rof</span>
+
+        <span class=pseudo>for</span>     0
+<span class=metakey>;strategy</span> <span class=metaval>Since strategy and assert lines are really comments, they</span>
+<span class=metakey>;strategy</span> <span class=metaval>will be parsed even inside FOR 0 / ROF blocks!</span>
+        <span class=pseudo>rof</span>
+
+<span class=comment>;[Actual code here..]</span></pre>
+
+
+  <h3><a name="parse_var">Variety with variables</a></h3>
+
+  <p>The problem with the constants defined with <code class=pseudo>EQU</code> is that they're,
+  well, constants.  Once you've defined them, you can't change their values.  This is fine for most
+  purposes, but it makes a few tricks damn near impossible.</p>
+
+  <p>Luckily pMARS provides a few real variables for us to use.  Their use is a bit tricky and it's
+  been a long time since I've seen anyone really using them, but they do exist.</p>
+
+  <p>The variable names have only one letter, effectively limiting their number to 26 (<var>a</var>
+  through <var>z</var>).  Instead of using <code class=pseudo>EQU</code>, the variables are assigned
+  their values with the <code>=</code> operator.  The tricky bit is that, to use the operator, one
+  has to have an expression.  And since pMARS does not recognize the comma operator, it may be
+  necessary to write dummy expressions.</p>
+
+  <p>Still, the variables can be useful.  For example, the following auto-generated Fibonacci
+  sequence would probably be impossible without them.</p>
+
+  <pre>
+        <span class=op>dat</span>     <span class=addr>#</span>1, (g=0)+(f=1)
+idx     <span class=pseudo>for</span>     15
+        <span class=op>dat</span>     <span class=addr>#</span>idx+1, (f=f+g)+((g=f-g) &amp;&amp; 0)
+        <span class=pseudo>rof</span></pre>
+
+  <p>Note how the expression <code>(g=f-g)</code> is "hidden" by ANDing it with 0.  The system works
+  because pMARS won't reorder the expression but always evaluates the left side of addition first,
+  so that when the right side is being computed, <var>f</var> has already been increased.</p>
+
+
+  <h3><a name="parse_pin">PINs and needles</a></h3>
+
+  <p>Okay, I almost forgot.  There's one more pseudo-Op left to describe.  It's almost never used,
+  but yes, it's there.  The <code class=pseudo>PIN</code> stands for "P-space Identification
+  Number".  If two programs have the same number as their <code class=pseudo>PIN</code>, they will
+  share their P-space.  This can be used to provide a sort of inter-process communication and even
+  cooperation.  Unfortunately the strategy doesn't seem to be worth the trouble it takes to create
+  an affective and fast method of communication.  Of course, if you want to try it, go ahead.  You
+  never know if it'll be a success...</p>
+
+  <p>If the program has no <code class=pseudo>PIN</code>, their P-space will always be private.
+  Even if two programs do share their P-space, the special read-only location 0 is always
+  private.</p>
+
+
+  <h3><a name="parse_hill">Climbing the hill</a></h3>
+
+  <p>If you didn't already know about them, the <dfn>King of the Hill</dfn> servers (often called
+  just <dfn>hills</dfn>) are continuous Core War tournaments on the Internet.  Warriors are sent by
+  e-mail -- or entered on a web form -- to the server, which pits them agains all the (usually
+  10-30) programs already on the hill.  The program with the lowest total score falls off the hill,
+  and the new warrior will replace it (assuming it got a better score than at least one of the
+  original programs).  There are also quite a few variations of this basic setup around, like
+  "infinite" hills, diversity hills, etc.</p>
+
+  <p>Note that the hills typically pre-compile the warriors into load files before actually running
+  them to save time.  This can lead to some of the predefined constants, such as
+  <var>WARRIORS</var>, being incorrect, and thus to mysterious <code class=assert>;assert</code>
+  problems.</p>
+
+  <p>There are currently (April 2012) two main KotH servers available:</p>
+
+  <dl>
+    <dt><a href="http://www.koth.org/">KotH.org</a></dt>
+
+    <dd>The oldest and most famous currently active KotH server.  Currently hosts 7 hills with
+    different settings, including two multiwarrior melee hills and two hills using the older Redcode
+    '88 standard.</dd>
+
+    <dt><a href="http://sal.discontinuity.info/">KOTH@SAL</a></dt>
+
+    <dd>Also hosts 7 hills with different parameters, including a <a
+    href="http://sal.discontinuity.info/hill.php?key=94b">Beginners' hill</a> where warriors are
+    automatically pushed off after surviving 50 challenges to make it easier for new players to make
+    it onto the hill.</dd>
+  </dl>
+
+  <p>Also, the <a
+  href="http://users.obs.carnegiescience.edu/birk/COREWAR/koenigstuhl.html">Koenigstuhl</a> server
+  hosts 10 "infinite" hills for published warriors.  Warriors sent to these hills never get pushed
+  off, so the hills keep getting bigger and bigger.  The Koenigstuhl also uses a recursive scoring
+  argorithm that adjusts a warrior's contribution to the scores based on its ranking.</p>
+
+  <p>The list above is not meant to be comprehensive, and is likely to become outdated.  A more
+  detailed and up-to-date list of active KotH servers can (currently) be found at <a
+  href="http://www.corewar.info/hills.htm">the corewar.info pages</a>.</p>
+
+  <hr>
+
+  <h2><a name="history">History</a></h2>
+
+  <dl class=compact>
+    <dt><strong>v. 0.50</strong></dt><dd>Finished the chapter on the parser.  (March 25, 1997)</dd>
+
+    <dt>v. 0.51</dt><dd>Fixed a bug in the for/rof examples</dd>
+
+    <dt>v. 0.52</dt><dd><em>The first published version</em></dd>
+
+    <dt>v. 0.53</dt><dd>Fixed some typos and misspellings</dd>
+
+    <dt>v. 0.54</dt><dd>Added the '88 -> '94 conversion rules</dd>
+
+    <dt>v. 0.55</dt><dd>Cleaned up the HTML a bit</dd>
+
+    <dt><strong>v. 1.00</strong></dt><dd>Added info on the <code>=</code> operator.  Might as well
+    call this thing "version 1".  (May 5, 1997)</dd>
+
+    <dt>v. 1.01</dt><dd>Fixed a minor incompatibility with <code>&lt;DD&gt;</code> tags.</dd>
+
+    <dt>v. 1.02</dt><dd>Fixed some typos and illogical sentences.  Changed the navigation bar to
+    have a common style with the rest of the site.</dd>
+
+    <dt>v. 1.03</dt><dd>Removed some images and align attributes, changed doctype to Strict.</dd>
+
+    <dt><strong>v. 1.10</strong></dt><dd><em>Aargh!</em> I've got <code class=op>SLT</code>
+    backwards all this time! Fixed.  (March 8, 1998)</dd>
+
+    <dt>v. 1.20</dt><dd>Rewrote much of <a href="#parse_hill">Climbing the hill</a> to reflect the
+    current situation.  Made some other minor changes in the process.  Moved the document to a new
+    address at <a href="http://vyznev.net">vyznev.net</a>.  Switched to a <a
+    href="http://creativecommons.org">Creative Commons</a> license.  (October 7, 2003)</dd>
+
+    <dt><strong>v. 1.21</strong></dt><dd>Added colors (for CSS-enabled browsers)!  Made some more
+    minor changes and typo fixes.  Chose a standard spelling and capitalization for the title.  This
+    is the first published version at <a href="http://vyznev.net">vyznev.net</a>.  (April 11,
+    2004)</dd>
+
+    <dt>v. 1.22</dt><dd>Updated the license from CC-By-NC 2.0 to CC-By 3.0, removing the
+    restrictions on commercial use.  Removed the page move notification box.  Updated the KotH
+    server list again, removing defunct hills.  No other content changes.  (April 16, 2012)</dd>
+
+    </dl>
+
+  <hr>
+
+  <h2><a name="copyright">Copyright</a></h2>
+
+  <p xmlns:cc="http://creativecommons.org/ns#"><a rel="license"
+  href="http://creativecommons.org/licenses/by/3.0/"><img alt="Creative Commons License"
+  style="border-width:0;float:right" src="http://i.creativecommons.org/l/by/3.0/88x31.png" /></a>
+  Copyright 1997-2004 <a property="cc:attributionName" rel="cc:attributionURL"
+  href="http://vyznev.net/">Ilmari Karonen</a>.</p>
+
+  <p>This work is licensed under a <a rel="license"
+  href="http://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0 Unported
+  License</a>.</p>
+
+</body>
+</html>
+

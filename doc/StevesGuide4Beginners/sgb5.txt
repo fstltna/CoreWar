@@ -1,0 +1,144 @@
+######################################################################
+SGB_05.net	CORE WARS
+
+Steve's Guide for Beginners Iss 5 (v4)
+
+Issue 2 introduced two "warriors", BORING and
+USELESS.
+
+Issue 3 showed how simple warriors interact, run
+each other's code and kill each other.
+
+Issue 4 dealt with the basics of the debugger.
+
+======
+
+I have received several helpful e-mails since
+issue 4 and now realise that PMARSV also has a
+graphical display mode.
+
+Assuming you have a decent SVGA screen, type (from
+DOS, NOT from a DOS box in windows)
+PM RAVE AEKA -v 525
+
+What you will see is a box of 8000 cells
+containing red and green dots dancing at the top
+of the screen. This is a high res version of the
+text display we looked at earlier. The lower half
+of the screen is a debug window - press "d" to get
+the cdb prompt and you can type things like
+"l PC1,PC1+10"
+
+For details and other screen types read the PMARS
+documentation Appendix.
+
+======
+
+Now its time to start getting to grips with some
+basic Warriors. The tutorials and the newsgroup
+are full of self-referencing jargon. I suppose
+that that is in keeping with the programming style
+of Core War but it is very confusing.
+
+Dewdney seems to have a thing for fantasy creature
+warrior names - IMP, DWARF etc. Lets look at some.
+
+======
+
+IMP (adapted from the tutorial file):
+;redcode-94
+;name Imp
+;author A.K.Dewdney
+imp	mov    imp,	imp+1
+	end
+
+This is none other than our friend BORING, written
+using address labels - The current instruction is
+at address 'imp'. When executed, copy the contents
+of address imp (at a displacement of 0 from the
+current instruction at address 0) to the location
+after imp.
+
+This is a very simple program and I don't see how
+it can kill anything.
+
+======
+
+DWARF (adapted from the faq file):
+;redcode-94
+;name Dwarf
+;author A.K.Dewdney
+bomb	dat	#0
+dwarf	add	#4,	bomb
+	mov	bomb,	@bomb
+	jmp	dwarf
+	end	dwarf
+
+Now this has lots of new stuff. The "end dwarf"
+terminates the program source code and causes the
+instruction at adr 'dwarf' to be the first
+executed.
+
+The instuction at adr 'dwarf' adds the number 4 to
+the contents of the instruction at adr 'bomb'.
+Thus after execuction of the ADD, bomb will
+contain 'DAT #4' (and next time round the loop it
+will contain 'DAT #8' etc) (Note: All instructions
+have two operands "A" and "B" and that 'DAT x' is
+shorthand for 'DAT #0, x'. I think the default ADD
+operation is to add to the B operand of the
+desination location.)
+
+Then we step to 'MOV bomb, @bomb'. (Now here
+things get 'clever'. The assembler knows operand
+sizes and the like. I believe it to be possible to
+add instruction modifiers to alter default
+behaviour, but ...) This copies the entire
+instruction at location 'bomb' to the adr
+specified by the B operand of the instruction at
+adr 'bomb' WITH RESPECT TO the location it was
+accessed from (bomb). That is it copies "DAT #4"
+to adr 'bomb+4'.
+
+Why is this a bomb? Well it is illegal to execute
+the DAT (data) instruction. Copying it to
+somewhere where your opponent will run it will
+cause him to crash.
+
+Next we step onto 'JMP dwarf' which causes us to
+loop and do our ADD instruction again.
+
+======
+
+Dwarf comments:
+
+I assume that this is the archetypal bomber.
+
+The loop length is 3 instructions, the program
+length is 4 instructions. The bombs are placed
+every fourth location. This means that we could
+happily sit in our 4 locations throwing out bombs
+as long as the bombs miss our code and for "our" 1
+bomb in 4 locations it is the DAT adr which is hit.
+
+This won't work if CORESIZE isn't a multiple of 4.
+
+Run the debugger to check what addresses get
+bombed and how DAT increments:
+PMARSV -l 5 -e -s 20 DWARF.RED
+(there is only one warrior, so we can't use the
+batch file!) (Use debug command meld:
+@s~l0,$
+to step one instruction without displaying it and
+then to display all of memory.)
+
+Redo it with "-s 19" and kill yourself!
+
+=== Steve Bailey 101374.624@compuserve.com
+sgb@zed-inst.demon.co.uk
+http://ourworld.compuserve.com/homepages/SGBailey
+Work: Electronics Play: Go 2kyu.
+
+######################################################################
+
+

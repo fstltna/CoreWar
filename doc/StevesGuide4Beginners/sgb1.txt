@@ -1,0 +1,103 @@
+######################################################################
+SGB_01.net	CORE WARS
+
+Steve's Guide for Beginners Iss 1 (v4)
+
+I am a beginner and I find all this Core Wars
+stuff VERY confusing, so I am writing this "guide"
+for my own use, to encourage CONSTRUCTIVE
+criticism and advice and as a possible aid to
+other beginners.
+
+Such a guide may already exist - in which case
+please point me at it.
+
+During these guides I will make statements that are
+incorrect in detail, but please don't correct them
+when the intent of the statement is for beginner
+simplicity.
+
+The bias is towards IBM PC compatibles. (I use a
+486/66 running DOS 6 and Windows 3.1.)
+
+The line length is intentionally narrow to ease
+quoting.
+
+======
+
+Introduction:
+
+Some people will have a vague recollection of the
+concept of Core Wars from the Scientific American
+article around 1984. Most people have never heard
+of it.
+
+What is Core Wars?
+
+It is a game for 2 players. The field/board is a
+simulated small computer. The player's "piece" is
+a program. The objective is to corrupt your
+opponent's program so that it executes an illegal
+instruction.
+
+The field of play (the computer) is known as MARS
+which stands for "Memory Array Redcode Simulator".
+One common simulator is pMARS (p for portable).
+
+The programs written are "Warriors" and have
+names.
+
+======
+
+How to start?
+
+I started in rec.games.corewar.
+
+Most of the r.g.c. posts are technical
+gobbledegook, ignore them. Find the FAQ or
+references to the archives:
+ftp://ftp.csua.berkeley.edu/pub/corewar
+
+>From there load down .../documents/tutorial.1.Z, 
+.../documents/tutorial.2.Z and
+.../systems/pmars08.zip (which is PC executables)
+(don't download the sources pmars08s.zip)
+
+Create yourself a corewar directory (I'll refer to
+this as \COREWAR).
+
+Unpack the tutorials, merge them into one file (I
+called mine TUTORIAL.TXT) and put it in \COREWAR
+and read it.
+
+Unpack the zip file into \COREWAR then run your
+virus checker. (I renamed many files to ease my
+personal use - eg PMARS.DOC is now DOCN.TXT).
+
+(If you can't unpack .Z or .zip files, that is a
+separate matter beyond the scope of this guide.)
+
+>From DOS, change to \COREWAR, type DIR. You will
+see 3 *.EXEs and some *.REDs. Just to prove you've
+done it right, type PMARSV to get the usage
+prompt.
+
+Next choose two *.REDs (I'll pick two as examples
+here) and type:
+	PMARSV RAVE.RED AEKA.RED
+Watch it compile and splash pretty patterns on the
+screen.
+
+======
+
+You are up and running. Next issue will discuss
+what the patterns mean and what the *.REDs are.
+
+=== Steve Bailey 101374.624@compuserve.com
+sgb@zed-inst.demon.co.uk
+http://ourworld.compuserve.com/homepages/SGBailey
+Work: Electronics Play: Go 2kyu.
+
+######################################################################
+
+
