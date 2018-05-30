@@ -802,6 +802,7 @@ cdb(message)
 #if !defined(__MAC__) && !defined(XWINGRAPHX)
     case SHE_H:                /* execute shell (command) */
     case SH_H:
+#if !defined(BBSMODE)
 #if defined(DOSALLGRAPHX)
       if (displayMode == TEXT) {
         switch_page(DEF_PAGE);
@@ -856,6 +857,7 @@ cdb(message)
 #endif
 #endif
 #endif
+#endif /* ZZZ no shell command in BBS mode */
       break;
 #endif
     case SKI_H:
