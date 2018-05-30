@@ -351,7 +351,7 @@ char   *credits_screen3 =
 "Linux/SVGA display version by Martin Maierhofer\n";
 #else
 #ifdef BBSMODE
-char   *credits_screen3 = "BBS version (C) 2018 by Marisa Giancarla\n";
+char   *credits_screen3 = "BBS version 0.7 (C) 2018 by Marisa Giancarla\n";
 #else
 char   *credits_screen3 = "";
 #endif                                /* BBSMODE */
