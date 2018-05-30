@@ -68,5 +68,6 @@ install:
 	cp ../warriors/* /sbbs/doors/corewar/warriors
 	mkdir -p /sbbs/doors/corewar/players
 	cp pmars /sbbs/doors/corewar/
+	cp ../README_BBS.md /sbbs/doors/corewar
 
 
