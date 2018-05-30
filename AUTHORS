@@ -15,3 +15,5 @@ Authors
     an optimized version of sim.c which runs fast on x86 machines. Ilmari
     Karonen (iltzu@sci.fi) added the -P option and various improvements.
 
+    Marisa Giancarla added the patches to enable secure usage as a BBS
+    door, and the text GUI shell for it.
