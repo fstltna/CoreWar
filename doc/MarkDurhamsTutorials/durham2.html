@@ -1,0 +1,274 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0055)http://www.ecst.csuchico.edu/~pizza/koth/tutorial2.html -->
+<HTML><HEAD><TITLE>Corewar Tutorial Pt II</TITLE>
+<META content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<META content="MSHTML 5.00.2314.1000" name=GENERATOR></HEAD>
+<BODY><PRE>Newsgroups: rec.games.corewar
+From: DURHAM@ricevm1.rice.edu (Mark A. Durham)
+Subject: Intro to Redcode Part II
+Organization: Rice University, Houston, TX
+Date: Thu, 14 Nov 1991 09:45:13 GMT
+
+IV. Address Modes
+
+   Addressing modes subtly (sometimes not-so-subtly) alter the
+behaviour of instructions.  A somewhat brief description of their
+general properties is given here.  Specifics will be left to the
+instruction set section.
+   An octothorpe (#) is used to indicate an operand with an Immediate
+Address Mode.  Immediate mode data is contained in the current
+instruction's field.  If the A-mode is immediate, the data is in the
+A-field.  If the B-mode is immediate, the data is in the B-field.
+   If no mode indicator is present (86: or the US dollar sign '$' is
+present), Direct Address Mode is used.  Direct addresses refer to
+instructions relative to the current instruction.  Address 0 refers to
+the current instruction.  Direct address -1 refers to the (physically)
+previous instruction.  Direct address +1 refers to the (physically)
+next instruction.
+   The commercial-at (@) is used to indicate Indirect Address Mode.
+In indirect addressing, the indirect address points to an instruction
+as in direct addressing, except the target is not the instruction to
+which the indirect address points but rather the instruction pointed
+to by the B-field of the instruct pointed to by the indirect address.
+Example:
+
+x-2     DAT  #0,  #0   ; Target instruction.
+x-1     DAT  #0, #-1   ; Pointer instruction.
+x       MOV   0, @-1   ; Copies this instruction to location x-2.
+
+   The less-than (&lt;) is used to indicate (86: Auto-, 88: Pre-)
+Decrement Indirect Address Mode.  Its behaviour is just like that of
+Indirect Address Mode, except the pointer is decremented before use.
+Example:
+
+x-2     DAT  #0,  #0   ; Target instruction
+x-1     DAT  #0,  #0   ; Pointer instruction.  Compare to @ example.
+x       MOV   0, &lt;-1   ; Copies this instruction to location x-2.
+
+
+Commentary: Although Decrement Indirect addressing appears to be a
+    simple extension of Indirect addressing, it is really very tricky
+    at times - especially when combined with DJN.  There are sematic
+    differences between the '86 and '88 standards, thus the change in
+    name from Auto-Decrement to Pre-Decrement.  These differences are
+    discussed below.  This discussion is non-essential for the average
+    Redcode programmer.  I suggesting skipping to the next section for
+    the weak-stomached.
+
+86: Durham: Instructions are fetched from memory into an instruction
+    register.  Each operand is evaluated, storing a location (into an
+    address register) and an instruction (into a value register) for
+    each operand.  After the operands have been evaluated, the
+    instruction is executed.
+   Operand Evaluation: If the mode is immediate, the address register
+    is loaded with 0 (the current instruction's address) and the value
+    register is loaded with the current instruction.  If the mode is
+    direct, the address register is loaded with the field value and
+    the value register is loaded with the instruction pointed to by
+    the address register.  If the mode is indirect, the address
+    register is loaded with the sum of the field value and the B-field
+    value of the instruction pointed to by the field value and the
+    value register is loaded with the instruction pointed to by the
+    address register.  If the mode is auto-decrement, the address
+    register is loaded with a value one less than the sum of the field
+    value and the B-field value of the instruction pointed to by the
+    field value and the value register is loaded with the instruction
+    pointed to by the address register.  AFTER the operands have been
+    evaluated (but before instruction execution), if either mode was
+    auto-decrement, the appropriate memory location is decremented.
+    If both modes were auto-decrement and both fields pointed to the
+    same pointer, that memory location is decremented twice.  Note
+    that this instruction in memory then points to a different
+    instruction than either operand and also differs from any copies
+    of it in registers.
+86: Other: As above, except there are no registers.  Everything is
+    done in memory.
+Commentary: ICWS'86 clearly states the use of an instruction register,
+    but the other operand address and value registers are only
+    implied.  Ambiguities and lack of strong statements delineating
+    what takes place in memory and what takes place in registers
+    condemned ICWS'86 to eternal confusion and gave birth to ICWS'88.
+88: As above except everything is done in memory and Pre-Decrement
+    Indirect replaces Auto-Decrement Indirect.  Pre-Decrement Indirect
+    decrements memory as it is evaluating the operands rather than
+    after.  It evaluates operand A before evaluating operand B.
+
+
+----------------------------------------------------------------------
+
+
+V. Instruction Set
+
+DAT A, B
+   The DAT (data) instruction serves two purposes.  First, it allows
+you to store data for use as pointers, offsets, etc.  Second, any task
+which executes a DAT instruction is removed from the task queue.  When
+all of warrior's tasks have been removed from the queue, that warrior
+has lost.
+86: DAT allows only one operand - the B-operand.  The A-field is left
+    undefined (the example shows #0), but comparisons of DAT
+    instructions with identical B-operands must yield equality.
+88: DAT allows two operands but only two modes - immediate and
+    pre-decrement.
+X: DAT takes one or two operands and accepts all modes.  If only one
+    operand is present, that operand is considered to be the B-operand
+    and the A-operand defaults to #0.
+Commentary: It is important to note that any decrement(s) WILL occur
+    before the task is removed from the queue since the instruction
+    executes only after the operand evaluation.
+
+MOV A, B
+   The MOV (move) instruction either copies a field value (if either
+mode is immediate) or an entire instruction (if neither mode is
+immediate) to another location in core (from A to B).
+86: Durham: MOV #a, #b changes itself to MOV #a, #a.
+Commentary: There is a clear typographical error in ICWS'86 which
+    changes the interpretation of MOV #a, B to something non-sensical.
+    For those with a copy of ICWS'86, delete the term "B-field" from
+    the next-to-last line of the second column on page 4.
+88: No immediate B-modes are allowed.
+X: Immediate B-modes are allowed and have the same effect as a
+    B-operand of 0.  (See 86: Durham: above).
+
+ADD A, B
+86: The ADD instruction adds the value at the A-location to the value
+    at the B-location, replacing the B-location's old contents.
+88: If the A-mode is immediate, ADD is interpreted as above.  If the
+    A-mode is not immediate, both the A-field and the B-field of the
+    instruction pointed to by the A-operand are added to the A-field
+    and B-field of the instruction pointed to by the B-operand,
+    respectively.  The B-mode can not be immediate.
+X: Immediate B-modes are allowed and have the same effect as in 86:.
+    Example: ADD #2, #3 becomes ADD #2, #5 when executed once.
+
+SUB A, B
+   The SUB (subtract) instruction is interpreted as above for all
+three cases, except A is subtracted from B.
+
+JMP A, B
+   The JMP (jump) instruction changes the instruction pointer to point
+to the instruction pointed to by the A-operand.
+86: JMP allows only one operand - the A-operand.  The B-operand is
+    shown as #0.
+88: JMP allows both operands, but the A-mode can not be immediate.
+X: JMP allows both operands and the A-mode can be immediate.  An
+    immediate A-mode operand is treated just like JMP 0, B when
+    executed.
+
+JMZ A, B
+   The JMZ (jump if zero) instruction jumps to the instruction pointed
+to by the A-operand only if the B-field of the instruction pointed to
+by the B-operand is zero.
+88: Immediate A-modes are not allowed.
+
+JMN A, B
+   The JMN (jump if non-zero) instruction jumps to the instruction
+pointed to by the A-operand only if the B-field of the instruction
+pointed to by the B-operand is non-zero.
+88: Immediate A-modes are not allowed.
+
+DJN A, B
+   The DJN (decrement and jump if non-zero) instruction causes the
+B-field of the instruction pointed to by the B-operand to be
+decremented.  If the decremented values is non-zero, a jump to the
+instruction pointed to by the A-operand is taken.
+88: Immediate A-modes are not allowed.
+
+CMP A, B
+   The CMP (compare, skip if equal) instruction compares two fields
+(if either mode is immediate) or two entire instructions (if neither
+mode is immediate) and skips the next instruction if the two are
+equivalent.
+Commentary: There is a clear typographical error in ICWS'86 which
+    changes the interpretation of CMP #a, B to something non-sensical.
+    For those with a copy of ICWS'86, delete the term "B-field" from
+    the fifth line from the bottom of the second column on page 5.
+    Also, the comments to the example on page 6 have been switched
+    (equal is not equal and vice versa).  The labels are correct
+    though.
+88: Immediate B-modes are not allowed.
+
+SPL A, B
+   The SPL (split) instruction splits the execution between this
+warrior's currently running tasks and a new task.  Example: A battle
+between two warriors, 1 and 2, where warrior 1 has two tasks (1 and
+1') and warrior 2 has only one task would look like this: 1, 2, 1', 2,
+1, 2, 1', 2, etc.
+86: SPL allows only one operand - the B-operand.  The A-operand is
+    shown as #0.  After executing the SPL, the next instruction to
+    execute for this warrior is that of the newly added task (the new
+    task is placed at the front of the task queue).  A maximum of 64
+    tasks is allowed for each warrior.
+88: SPL splits the A-operand, not the B-operand.  After executing the
+    SPL, the next instruction to execute for this warrior is the same
+    instruction which would have executed had another task not been
+    added (the new task is placed at the back of the task queue).
+    There is no explicit task limit on warriors.  Immediate A-operands
+    are not allowed.
+X: Immediate A-operands are allowed and behave as SPL 0, B when
+    executed.
+
+88: SLT A, B: The SLT (skip if less than) instruction skips the next
+    instruction if A is less than B.  No Immediate B-modes are
+    allowed.
+X: Immediate B-modes are allowed.
+
+X: XCH A, B: The XCH (exchange) instructions exchanges the A-field and
+    the B-field of the instruction pointed to by the A-operand.
+
+X: PCT A, B: The PCT (protect) instruction protects the instruction
+    pointed to by the A-operand until the protection is removed by an
+    instruction attempting to copy over the protected instruction.
+
+
+Pseudo-Ops: Instructions to the Assembler
+-----------------------------------------
+
+END
+    The END pseudo-op indicates the end of the Redcode source program.
+86: END takes no operands.
+88: If END is followed by a label, the first instruction to be
+    executed is that with the label following END.
+X: ORG A (origin) takes over this initial instruction function from
+    END.
+Commentary: If no initial instruction is identified, the first
+    instruction of your program will be the initial instruction.  You
+    can accomplish the same effect as "END start" or "ORG start" by
+    merely starting your program with the instruction "JMP start".
+
+86: SPACE A, B: The SPACE pseudo-op helps pretty-up Redcode source
+    listings.  SPACE A, B means to skip A lines, then keep B lines on
+    the next page.  Some assemblers do not support SPACE, but will
+    treat it as a comment.
+
+88: label EQU A: The EQU (equate) pseudo-op gives the programmer a
+    macro-like facility by replacing every subsequent occurrence of
+    the label "label" with the string "A".
+Commentary: A normal label is a relative thing.  Example:
+
+x       DAT  #0,  #x   ; Here x is used in the B-field
+x+1     DAT  #0,  #x   ; Each instruction's B-field gives
+x+2     DAT  #0,  #x   ;    the offset to x.
+
+is the same as
+
+x       DAT  #0,  #0   ; Offset of zero
+x+1     DAT  #0, #-1   ;    one
+x+2     DAT  #0, #-2   ;    two
+
+but
+
+x!      EQU   0        ; Equate label like #define x! 0
+        DAT  #0,  #x!  ; Exclamation points can be used
+        DAT  #0,  #x!  ;    in labels (in Extended systems)
+        DAT  #0,  #x!  ; I use them exclusively to indicate
+                       ;    immediate equate labels.
+
+is the same as
+
+        DAT  #0,  #0   ; A direct text replacement
+        DAT  #0,  #0   ;    appears the same on every
+        DAT  #0,  #0   ;    line it is used.
+
+----------------------------------------------------------------------
+</PRE></BODY></HTML>

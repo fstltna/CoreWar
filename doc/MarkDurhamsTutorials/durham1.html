@@ -1,0 +1,230 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0055)http://www.ecst.csuchico.edu/~pizza/koth/tutorial1.html -->
+<HTML><HEAD><TITLE>Corewar Tutorial Pt I</TITLE>
+<META content="text/html; charset=windows-1252" http-equiv=Content-Type>
+<META content="MSHTML 5.00.2314.1000" name=GENERATOR></HEAD>
+<BODY><PRE>Newsgroups: rec.games.corewar
+From: DURHAM@ricevm1.rice.edu (Mark A. Durham)
+Subject: Intro to Redcode Part I
+Organization: Rice University, Houston, TX
+Date: Thu, 14 Nov 1991 09:41:37 GMT
+
+Introduction to Redcode
+-----------------------
+
+  I. Preface - Reader Beware!    { Part I }
+
+ II. Notation                    { Part I }
+
+III. MARS Peculiarities          { Part I }
+
+ IV. Address Modes               { Part II }
+
+  V. Instruction Set             { Part II }
+
+
+----------------------------------------------------------------------
+
+
+I. Preface - Reader Beware!
+
+   The name "Core War" arguably can be claimed as public domain.
+Thus, any program can pass itself off as an implementation of Core
+War.  Ideally, one would like to write a Redcode program on one system
+and know that it will run in exactly the same manner on every other
+system.  Alas, this is not the case.
+   Basically, Core War systems fall under one of four catagories:
+Non-ICWS, ICWS'86, ICWS'88, or Extended.  Non-ICWS systems are usually
+a variant of Core War as described by A. K. Dewdney in his "Computer
+Recreations" articles appearing in Scientific American.  ICWS'86 and
+ICWS'88 systems conform to the standards set out by the International
+Core War Society in their standards of 1986 and 1988, respectively.
+Extended systems generally support ICWS'86, ICWS'88, and proprietary
+extensions to those standards.  I will discuss frequently common
+extensions as if they were available on all Extended systems (which
+they most certainly are not).
+   I will not describe Non-ICWS systems in this article.  Most Non-
+ICWS systems will be easily understood if you understand the systems
+described in this article however.  Although called "standards",
+ICWS'86 and ICWS'88 (to a lesser extent) both suffer from ambiguities
+and extra-standard issues which I will try to address.
+   This is where the reader should beware.  Because almost any
+interpretation of the standard(s) is as valid as any other, I
+naturally prefer MY interpretation.  I will try to point out other
+common interpretations when ambiguities arise though, and I will
+clearly indicate what is interpretation (mine or otherwise) as such.
+You have been warned!
+
+
+----------------------------------------------------------------------
+
+
+II. Notation
+
+   "86:" will indicate an ICWS'86 feature.  "88:" will indicate an
+ICWS'88 feature.  "X:" will indicate an Extended feature.  "Durham:"
+will indicate my biased interpretation.  "Other:" will indicate
+interpretations adhered to by others.  "Commentary:" is me explaining
+what I am doing and why.  "Editorial:" is me railing for or against
+certain usages.  Items without colon-suffixed prefaces can be
+considered universal.
+
+   Redcode consists of assembly language instructions of the form
+
+&lt;label&gt;   &lt;opcode&gt; &lt;A-mode&gt;&lt;A-field&gt;, &lt;B-mode&gt;&lt;B-field&gt;   &lt;comment&gt;
+
+An example Recode program:
+
+; Imp
+; by A. K. Dewdney
+;
+imp     MOV imp, imp+1      ; This program copies itself ahead one
+        END                 ; instruction and moves through memory.
+
+
+The &lt;label&gt; is optional.
+86: &lt;label&gt; begins in the first column, is one to eight characters
+    long, beginning with an alphabetic character and consisting
+    entirely of alphanumerals.  Case is ignored ("abc" is equivalent
+    to "ABC").
+88: &lt;label&gt; as above, except length is not limited and case is not
+    addressed.  Only the first eight characters are considered
+    significant.
+X: &lt;label&gt; can be preceded by any amount of whitespace (spaces, tabs,
+    and newlines), consists of any number of significant alphanumerals
+    but must start with an alphabetic, and case is significant ("abc"
+    is different from "ABC").
+Commentary: I will always use lowercase letters for labels to
+    distinguish labels from opcodes and family operands.
+
+The &lt;opcode&gt; is separated from the &lt;label&gt; (if there is one) by
+    whitespace.  Opcodes may be entered in either uppercase or
+    lowercase.  The case does not alter the instruction.  DAT, MOV,
+    ADD, SUB, JMP, JMZ, JMN, DJN, CMP, SPL, and END are acceptable
+    opcodes.
+86: SPACE is also recognized as an opcode.
+88: SLT and EQU are recognized as opcodes.  SPACE is not.
+X: All of the above are recognized as opcodes as well as XCH and PCT,
+    plus countless other extensions.
+Commentary: END, SPACE, and EQU are known as pseudo-ops because they
+    really indicate instructions to the assembler and do not produce
+    executable code.  I will always capitalize opcodes and pseudo-ops
+    to distinguish them from labels and text.
+
+The &lt;A-mode&gt; and &lt;A-field&gt; taken together are referred to as the
+    A-operand.  Similarly, the &lt;B-mode&gt;&lt;B-field&gt; combination is known
+    as the B-operand.  The A-operand is optional for some opcodes.
+    The B-operand is optional for some opcodes.  Only END can go
+    without at least one operand.
+86: Operands are separated by a comma.
+88: Operands are separated by whitespace.
+X: Operands are separated by whitespace and/or a comma.  Lack of a
+    comma can lead to unexpected behaviour for ambiguous constructs.
+Commentary: The '88 standard forces you to write an operand without
+    whitespace, reserving whitespace to separate the operands.  I like
+    whitespace in my expressions, therefore I prefer to separate my
+    operands with a comma and will do so here for clarity.
+
+&lt;mode&gt; is # (Immediate Addressing), @ (Indirect Addressing), or &lt;
+    (86: Auto-Decrement Indirect, 88: Pre-Decrement Indirect).  A
+    missing mode indicates Direct Addressing.
+86: $ is an acceptable mode, also indicating Direct Addressing.
+88: $ is not an acceptable mode.
+X: $ is an acceptable mode as in 86:.
+Commentary: The distinction between Auto-Decrement Indirect Addressing
+    and Pre-Decrement Indirect Addressing is semantic, not syntactic.
+
+&lt;field&gt; is any combination of labels and integers separated by the
+    arithmetic operators + (addition) and - (subtraction).
+86: Parentheses are explicitly forbidden.  "*" is defined as a special
+    label symbol meaning the current statement.
+88: Arithmetic operators * (multiplication) and / (integer division)
+    are added.  "*" is NOT allowed as a special label as in 86:.
+X: Parentheses and whitespace are permitted in expressions.
+Commentary: The use of "*" as meaning the current statement may be
+    useful in some real assemblers, but is completely superfluous in a
+    Redcode assembler.  The current statement can always be referred
+    to as 0 in Redcode.
+
+&lt;comment&gt; begins with a ; (semicolon), ends with a newline, and can
+    have any number of intervening characters.  A comment may appear
+    on a line by itself with no instruction preceding it.
+88: Blank lines are explicitly allowed.
+
+
+   I will often use "A" to mean any A-operand and "B" to mean any
+B-operand (capitalization is important).  I use "a" to mean any  A-
+field and "b" to mean any B-field.  For this reason, I never use "a"
+or "b" as an actual label.
+   I enclose sets of operands or instructions in curly braces.  Thus
+"A" is equivalent to "{ a, #a, @a, &lt;a }". I use "???" to mean any
+opcode and "x" or "label" as an arbitrary label.  Thus, the complete
+family of acceptable Redcode statements can be represented as
+
+x    ??? A, B   ; This represents all possible Redcode statements.
+
+"???" is rarely used as most often we wish to discuss the behaviour of
+a specific opcode.  I will often use labels such as "x-1" (despite its
+illegality) for the instruction before the instruction labelled "x",
+for the logically obvious reason.  "M" always stands for the integer
+with the same value as the MARS memory size.
+
+
+----------------------------------------------------------------------
+
+
+III. MARS Peculiarities
+
+   There are two things about MARS which make Redcode different from
+any other assembly language.  The first of these is that there are no
+absolute addresses in MARS.  The second is that memory is circular.
+   Because there are no absolute addresses, all Redcode is written
+using relative addressing.  In relative addressing, all addresses are
+interpreted as offsets from the currently executing instruction.
+Address 0 is the currently executing instruction.  Address -1 was the
+previously executed instruction (assuming no jumps or branches).
+Address +1 is the next instruction to execute (again assuming no jumps
+or branches).
+   Because memory is circular, each instruction has an infinite number
+of addresses.  Assuming a memory size of M, the current instruction
+has the addresses { ..., -2M, -M, 0, M, 2M, ... }.  The previous
+instruction is { ..., -1-2M, -1-M, -1, M-1, 2M-1, ... }.  The next
+instruction is { ..., 1-2M, 1-M, 1, M+1, 2M+1, ... }.
+
+Commentary: MARS systems have historically been made to operate on
+   object code which takes advantage of this circularity by insisting
+   that fields be normalized to positive integers between 0 and M-1,
+   inclusive.  Since memory size is often not known at the time of
+   assembly, a loader in the MARS system (which does know the memory
+   size) takes care of field normalization in addition to its normal
+   operations of code placement and task pointer initialization.
+
+Commentary: Redcode programmers often want to know what the memory
+    size of the MARS is ahead of time.  This is not always possible.
+    Since normalized fields can only represent integers between 0 and
+    M-1 inclusive, we can not represent M in a normalized field.  The
+    next best thing?  M-1.  But how can we write M-1 when we do not
+    know the memory size?  Recall from above that -1 is equivalent to
+    M-1.  Final word of caution: -1/2 is assembled as 0 (not as M/2)
+    since the expression is evaluated within the assembler as -0.5 and
+    then truncated.
+
+86: Only two assembled-Redcode programs (warriors) are loaded into
+    MARS memory (core).
+88: Core is initialized to (filled with) DAT 0, 0 before loading any
+    warriors.  Any number of warriors may be loaded into core.
+
+Commentary: Tournaments almost always pit warrior versus warrior with
+    only two warriors in core.
+
+   MARS is a multi-tasking system.  Warriors start as just one task,
+but can "split" off additional tasks.  When all of a warriors tasks
+have been killed, the warrior is declared dead.  When there is a sole
+warrior still executing in core, that warrior is declared the winner.
+86: Tasks are limited to a maximum of 64 for each warrior.
+88: The task limit is not set by the standard.
+
+
+----------------------------------------------------------------------
+
+</PRE></BODY></HTML>
