@@ -85,10 +85,14 @@ char   *helpText[] = {
 #else
   "Display:      clear\n",
 #endif
+#if defined(BBSMODE)
+  "Others:       pqueue   wqueue   pspace\n",
+#else
 #if defined(__MAC__) || defined(XWINGRAPHX)
   "Others:       pqueue   wqueue   pspace   write\n",
 #else
   "Others:       pqueue   wqueue   pspace   shell    write\n",
+#endif
 #endif
   "\n",
   "Command description, shortest abbreviation in ():\n",
@@ -125,7 +129,7 @@ char   *helpText[] = {
   "(rem)ark string        macro comment\n",
   "(res)et                terminate macro/command chain processing\n",
   "(se)arch pattern       search for wildcarded pattern in core\n",
-#if !defined(__MAC__) && !defined(XWINGRAPHX)
+#if !defined(__MAC__) && !defined(XWINGRAPHX) && !defined(BBSMODE)
   "(sh)ell [command]      execute OS command\n",
 #endif
   "(sk)ip [count]         execute [count] steps silently\n",
@@ -137,8 +141,10 @@ char   *helpText[] = {
   "(th)read *             step through current thread\n",
   "(t)race [range]        set trace of core addresses\n",
   "(u)ntrace [range]      clear trace of core addresses\n",
+#if !defined(BBSMODE)
   "(w)rite logfile        write all following output to logfile\n",
   "(w)rite                close logfile\n",
+#endif
   "(wq)ueue [off]         enter/exit warrior queue debug mode\n",
   "* [address]            set PC to [address], then continue|go|..\n",
   "range: { e | e,e | e, | ,e | , }\n",
@@ -312,7 +318,7 @@ char   *duplicateMsg = "Duplicate errors/warnings found in line %d (%d)\n";
  */
 
 char   *credits_screen1 =
-"pMARS v%d.%d.%d, %s, corewar simulator with ICWS'94 extensions\n";
+"pMARS v%d.%d.%d, %s, corewar simulator with ICWS'94 extensions for use as a BBS door\n";
 char   *credits_screen2 =
 "Copyright (C) 1993-95 Albert Ma, Na'ndor Sieben, Stefan Strack and Mintardjo Wangsaw\n";
 
@@ -344,7 +350,11 @@ char   *credits_screen3 =
 char   *credits_screen3 =
 "Linux/SVGA display version by Martin Maierhofer\n";
 #else
+#ifdef BBSMODE
+char   *credits_screen3 = "BBS version (C) 2018 by Marisa Giancarla\n";
+#else
 char   *credits_screen3 = "";
+#endif                                /* BBSMODE */
 #endif                                /* LINUXGRAPHX */
 #endif                                /* MACGRAPHX */
 #endif                                /* DOSTXTGRAPHX */
