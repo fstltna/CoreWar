@@ -1,4 +1,4 @@
-CoreWar - door version 0.9.2
+CoreWar - door version 0.7
 =======
 
 This is a fork of CoreWar that is targeted as a door for Linux BBS's. Yes they still exist. If you have issues or need help go to [The Synchronet BBS CoreWar Forum](https://synchronetbbs.org/index.php/forum/corewar)  and post it there. This version locks down the game so it is safe to run as a BBS door, that is, it has no access outside target directory, and a text GUI is provided to make it easier for new players.
