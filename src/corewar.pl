@@ -192,10 +192,13 @@ sub BattleArena
 	}
 	my @selection1 = $d->checklist( title => "Select Testing Warriors", text => 'Select up to 3: (If you choose more than 3 only first 3 will be used)',
                                  list => [ '1', [ 'aeka.red', 0 ],
-                                           '2', [ 'flashpaper.red', 0 ],
-                                           '3', [ 'pspace.red', 1 ],
-                                           '4', [ 'rave.red', 1 ],
-                                           '5', [ 'validate.red', 1 ] ]
+                                           '2', [ 'bubbly_hort.red', 0 ],
+                                           '3', [ 'fern.red', 0 ],
+                                           '4', [ 'flashpaper.red', 0 ],
+                                           '5', [ 'pspace.red', 1 ],
+                                           '6', [ 'rave.red', 1 ],
+                                           '7', [ 'shelter.red', 1 ],
+                                           '8', [ 'validate.red', 1 ] ]
                                );
 
 	my @ActiveWarriors = ();
