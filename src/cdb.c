@@ -940,6 +940,7 @@ cdb(message)
     case WRI_H:
     case WR_H:
     case W_H:
+#if !defined(BBSMODE)
       if (TERMINAL(argStr) && !logfile)
         cdb_fputs(usageWrite, FORCE);
       if (logfile) {
@@ -953,6 +954,7 @@ cdb(message)
         else
           cdb_fputs(openingLogfile, COND);
       }
+#endif
       break;
     case WQU_H:
     case WQ_H:
