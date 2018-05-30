@@ -1,0 +1,189 @@
+diff -u -N pmars-0.9.2/src/Makefile.am pmars-0.9.2-pak/src/Makefile.am
+--- pmars-0.9.2/src/Makefile.am	Thu Jan  1 01:00:00 1970
++++ pmars-0.9.2-pak/src/Makefile.am	Tue Dec 26 15:22:39 2000
+@@ -0,0 +1,38 @@
++## Process this file with automake to produce Makefile.in
++##
++## pMARS -- a portable Memory Array Redcode Simulator
++##
++## Makefile.am: Input file for automake
++## Copyright (C) 2000 Philip Kendall
++##
++## This program is free software; you can redistribute it and/or modify
++## it under the terms of the GNU General Public License as published by
++## the Free Software Foundation; either version 2 of the License, or
++## (at your option) any later version.
++##
++## This program is distributed in the hope that it will be useful,
++## but WITHOUT ANY WARRANTY; without even the implied warranty of
++## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++## GNU General Public License for more details.
++##
++## You should have received a copy of the GNU General Public License
++## along with this program; if not, write to the Free Software
++## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++##
++## $Id: Makefile.am,v 1.1 2000/12/26 15:22:39 pak21 Exp $
++
++AUTOMAKE_OPTIONS = foreign
++
++bin_PROGRAMS = pmars
++
++pmars_SOURCES = asm.c cdb.c clparse.c disasm.c eval.c global.c pmars.c pos.c\
++	sim.c str_eng.c token.c
++EXTRA_pmars_SOURCES = alldisp.c curdisp.c grxdisp.c gtdisp.c lnxdisp.c\
++	uidisp.c xgraphio.c xwindisp.c
++
++noinst_HEADERS = asm.h config.h global.h lnxdisp.h pmarsicn.h sim.h xwindisp.h
++
++EXTRA_DIST = Makefile.djg Makefile.wat
++
++
++
+diff -u -N pmars-0.9.2/src/configure.in pmars-0.9.2-pak/src/configure.in
+--- pmars-0.9.2/src/configure.in	Thu Jan  1 01:00:00 1970
++++ pmars-0.9.2-pak/src/configure.in	Tue Dec 26 15:34:49 2000
+@@ -0,0 +1,143 @@
++dnl Process this file with autoconf to produce a configure script.
++
++dnl pMARS -- a portable Memory Array Redcode Simulator
++
++dnl configure.in: Input file for autoconf
++dnl Copyright (C) 2000 Philip Kendall
++
++dnl This program is free software; you can redistribute it and/or modify
++dnl it under the terms of the GNU General Public License as published by
++dnl the Free Software Foundation; either version 2 of the License, or
++dnl (at your option) any later version.
++
++dnl This program is distributed in the hope that it will be useful,
++dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
++dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++dnl GNU General Public License for more details.
++
++dnl You should have received a copy of the GNU General Public License
++dnl along with this program; if not, write to the Free Software
++dnl Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++
++dnl $Id: configure.in,v 1.2 2000/12/26 15:34:49 pak21 Exp $
++
++AC_INIT(pmars.c)
++
++AM_INIT_AUTOMAKE(pmars, 0.9.2-pak)
++
++dnl Checks for programs.
++AC_PROG_CC
++
++dnl Check whether we want the server version (no debugger, no display)
++AC_ARG_ENABLE(server,
++  [  --enable-server         enable server version (default=no)],
++  pmars_server="$enableval", )
++
++if test "$pmars_server" = "yes"; then
++
++  CFLAGS="$CFLAGS -DSERVER";
++
++else
++
++  dnl We're not creating a server version, so see if we want graphics
++
++  AC_ARG_ENABLE(display,
++    [  --enable-display        enable display of core (default=yes)],
++    pmars_display="$enableval", pmars_display="yes" )
++
++  if test "$pmars_display" = "yes"; then
++
++    dnl Use X if we can find it (and the user hasn't disabled it), else
++    dnl use platform-specific display
++    AC_PATH_XTRA
++    if test "$no_x" = "yes"; then
++
++      AC_ARG_ENABLE(vga,
++        [  --enable-vga            enable use of VGA display (PC, default=yes)],
++        pmars_vga="$enableval", pmars_vga="yes" )
++
++      if test "$pmars_vga" = yes; then
++        AC_CHECK_LIB(vga,vga_init,
++          AC_CHECK_LIB(vgagl,gl_line,
++            CFLAGS="$CFLAGS -DGRAPHX"; LIBS="$LIBS -lvga -lvgagl",
++            AC_MSG_WARN(VGA libraries not found; trying curses display)
++            pmars_vga="no",
++            -lvga
++                      ),
++          AC_MSG_WARN(VGA libraries not found; trying curses display)
++          pmars_vga="no"
++                    )
++      fi
++
++      if test "$pmars_vga" = no; then
++        AC_CHECK_LIB(curses, initscr, CFLAGS="$CFLAGS -DCURSESGRAPHX";
++                                      LIBS="$LIBS -lcurses",
++        dnl If we can't find the `curses' library, try `ncurses'
++          AC_CHECK_LIB(ncurses, initscr,
++            CFLAGS="$CFLAGS -DCURSESGRAPHX"; LIBS="$LIBS -lncurses",
++            AC_MSG_WARN(Can't find a curses library; disabling display)
++                      )
++                    )
++      fi
++
++    else
++
++      CFLAGS="$CFLAGS $X_CFLAGS -DXWINGRAPHX";
++      LDFLAGS="$LDFLAGS $X_LIBS";
++      LIBS="$LIBS $X_PRE_LIBS -lX11 $X_EXTRA_LIBS";
++
++    fi
++
++  fi
++
++fi
++
++dnl Checks for header files.
++AC_HEADER_STDC
++AC_CHECK_HEADERS(fcntl.h limits.h malloc.h sys/time.h unistd.h)
++
++dnl Checks for typedefs, structures, and compiler characteristics.
++AC_TYPE_SIZE_T
++AC_HEADER_TIME
++
++dnl Checks for library functions.
++AC_TYPE_SIGNAL
++AC_CHECK_FUNCS(select strerror strstr strtol)
++
++dnl Check whether we want ICWS '94 extensions (enabled by default)
++AC_ARG_ENABLE(94,
++  [  --enable-94             enable ICWS '94 extensions (default=yes)],
++  pmars_ext="$enableval", pmars_ext="yes" )
++
++if test "$pmars_ext" = yes; then
++  CFLAGS="$CFLAGS -DEXT94";
++fi
++
++dnl Check whether we want to use the small memory model (disabled by default)
++AC_ARG_ENABLE(smallmem,
++  [  --enable-smallmem       use 16 rather than 32 bit integers (default=no)],
++  pmars_small="$enableval" )
++
++if test "$pmars_small" = yes; then
++  CFLAGS="$CFLAGS -DSMALLMEM";
++fi
++
++dnl Test whether we want the -P (permute) option available
++AC_ARG_ENABLE(permutate,
++  [  --enable-permutate      enable the -P (permutation) option (default=yes)],
++  pmars_permutate="$enableval", pmars_permutate="yes" )
++
++if test "$pmars_permutate" = yes; then
++  CFLAGS="$CFLAGS -DPERMUTATE";
++fi
++
++dnl Test whether to enter debugger on keypress (SysV only)
++AC_ARG_ENABLE(keypress,
++  [  --enable-keypress       enter debugger on any key (SysV, default=no)],
++  pmars_keypress="$enableval" )
++
++if test "$pmars_keypress" = yes; then
++  CFLAGS="$CFLAGS -DKEYPRESS";
++fi
++
++AC_OUTPUT(Makefile)
