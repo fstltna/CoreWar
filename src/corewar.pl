@@ -157,6 +157,7 @@ END_MESSAGE
 
 sub DebugBot
 {
+	my $key = "";
 	my $selectwarrior = $d->fselect( title => "Select Your Warrior To Debug", path => "/sbbs/doors/corewar/players/$UserName" );
 	$selectwarrior =~ s/\s+/_/g;
 	$selectwarrior =~ s/</_/g;
@@ -190,13 +191,19 @@ sub DebugBot
 	# Debug the bot
 	my $GameCommand = "$CorewarExe -e \"$selectwarrior\"";
 	system($GameCommand);
-	print "--- Press Enter Key To Continue ---\n";
-	my $key = getc(STDIN);
+	print "--- Press Any Key To Continue ---\n";
+	ReadMode 4; # Turn off controls keys
+	while (not defined ($key = ReadKey(-1)))
+	{
+		# No key yet
+	}
+	ReadMode 0; # Reset tty mode before exiting
 	#$d->msgbox( title => "Debug Completed", text => "Completed debugging this bot..." ); # ZZZ
 }
 
 sub BattleArena
 {
+	my $key = "";
 	my $Mode = shift;
 	if ($Mode eq "Battle")
 	{
@@ -347,8 +354,13 @@ sub BattleArena
 		$GameCommand = sprintf("%s \"%s\"", $GameCommand, $curbot);
 	}
 	system($GameCommand);
-	print "--- Press Enter Key To Continue ---\n";
-	my $key = getc(STDIN);
+	print "--- Press Any Key To Continue ---\n";
+	ReadMode 4; # Turn off controls keys
+	while (not defined ($key = ReadKey(-1)))
+	{
+		# No key yet
+	}
+	ReadMode 0; # Reset tty mode before exiting
 	#$d->msgbox( title => "Game Progress:", text => "Combat Terminated..." ); # ZZZ
 	# Check results
 	if ($? == 1)
