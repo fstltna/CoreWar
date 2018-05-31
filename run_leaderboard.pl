@@ -23,10 +23,11 @@ my $HTMLHeader = << "EOT";
 <html>
 <head>
 <title>CoreWar Leaderboard</title>
+<script src="sorttable.js"></script>
 </head>
 <body>
 <h1 align=center>CoreWar Leaderboard</h1>
-<table border=1>
+<table class="sortable" border=1>
 <tr bgcolor=\"#DDDDDD\"><td>Warrior Name</td><td>Warrior Author</td><td>Wins</td><td>Losses</td><td>Draw</td></tr>
 EOT
 
