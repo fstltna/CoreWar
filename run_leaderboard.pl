@@ -15,6 +15,8 @@ my $Rounds = 10;
 my @Warriors = ();
 my %WarriorName;
 my %WarriorAuthor;
+my %WarriorEmail;
+my %WarriorWebsite;
 my %WarriorError;
 my %Wins;
 my %Losses;
@@ -58,6 +60,8 @@ sub ReadWarrior
 	my $curwar = shift;
 	my $curWarName = "";
 	my $curWarAuth = "";
+	my $curWarEmail = "";
+	my $curWarWebsite = "";
 	#print "Opening warrior $curwar\n";
 	open(WarriorFH, '<', $curwar) or die $!;
 	while(<WarriorFH>)
@@ -71,6 +75,14 @@ sub ReadWarrior
 		{
 			$curWarAuth = substr($_, 8);
 		}
+		elsif (lc(substr($_, 0, 6)) eq ";email")
+		{
+			$curWarEmail = substr($_, 7);
+		}
+		elsif (lc(substr($_, 0, 8)) eq ";website")
+		{
+			$curWarWebsite = substr($_, 9);
+		}
 	}
 	close(WarriorFH);
 	if ($curWarName eq "")
@@ -82,6 +94,8 @@ sub ReadWarrior
 		$WarriorName{$curwar} = $curWarName;
 	}
 	$WarriorAuthor{$curwar} = $curWarAuth;
+	$WarriorEmail{$curwar} = $curWarEmail;
+	$WarriorWebsite{$curwar} = $curWarWebsite;
 	$WarriorError{$curwar} = 0;
 	$Wins{$curwar} = 0;
 	$Losses{$curwar} = 0;
@@ -90,7 +104,7 @@ sub ReadWarrior
 
 # Create the stats dir if non existing
 system("mkdir -p $StatsFileHtmlOutput");
-system("cp sorttable.js $StatsFileHtmlOutput");
+system("cp /sbbs/doors/corewar/sorttable.js $StatsFileHtmlOutput");
 
 
 # Open up text output file
@@ -177,6 +191,18 @@ foreach $CurWarrior (@Warriors)
 	$TempStr = $WarriorAuthor{$CurWarrior};
 	$TempStr =~ s/^\s+|\s+$//g;
 	my $AuthorField = (substr($TempStr . "                          ", 0, 16));
+	my $EmailField = $WarriorEmail{$CurWarrior};
+	$EmailField =~ s/^\s+|\s+$//g;
+	if ($EmailField ne "")
+	{
+		$EmailField = " <a href=\"mailto:$EmailField\">Send Email</a>";
+	}
+	my $WebsiteField = $WarriorWebsite{$CurWarrior};
+	$WebsiteField =~ s/^\s+|\s+$//g;
+	if ($WebsiteField ne "")
+	{
+		$WebsiteField = " <a href=\"$WebsiteField\">Visit Website</a>";
+	}
 	my $WinsField = (substr($Wins{$CurWarrior} . "                          ", 0, 4));
 	my $LossesField = (substr($Losses{$CurWarrior} . "                          ", 0, 4));
 	my $DrawField = (substr($Draws{$CurWarrior} . "                          ", 0, 4));
@@ -184,7 +210,7 @@ foreach $CurWarrior (@Warriors)
 	my $TrimmedErrors = $WarriorError{$CurWarrior};
 	$TrimmedErrors =~ s/^\s+|\s+$//g;
 	print(OUTFH "$NameField | $AuthorField | $WinsField | $LossesField | $DrawField | $TrimmedErrors\n");
-	print(OUTHTMLFH "<tr><td>$WarriorName{$CurWarrior}</td><td>$WarriorAuthor{$CurWarrior}</td><td>$Wins{$CurWarrior}</td><td>$Losses{$CurWarrior}</td><td>$Draws{$CurWarrior}</td><td>$WarriorError{$CurWarrior}</td></tr>\n");
+	print(OUTHTMLFH "<tr><td>$WarriorName{$CurWarrior}$WebsiteField</td><td>$WarriorAuthor{$CurWarrior}$EmailField</td><td>$Wins{$CurWarrior}</td><td>$Losses{$CurWarrior}</td><td>$Draws{$CurWarrior}</td><td>$WarriorError{$CurWarrior}</td></tr>\n");
 }
 
 close(OUTFH);
