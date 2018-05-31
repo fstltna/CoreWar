@@ -4,6 +4,7 @@
 my $StatsFileOutput = "/sbbs/doors/corewar/stats.txt";
 my $StatsFileHtmlOutput = "/var/www/html/corewar";
 my $CorewarExe = "/sbbs/doors/corewar/pmars";
+my $WarriorDir = "/sbbs/doors/corewar/players";
 
 # No changes below here...
 my @Warriors = ();
@@ -12,6 +13,7 @@ my %WarriorAuthor;
 my %Wins;
 my %Losses;
 my %Draws;
+my $FindCmd = "/usr/bin/find $WarriorDir -print|/bin/grep -v Olympus|/bin/grep \.red";
 my $TextHeader = << "EOT";
 Warrior Name | Warrior Author | Wins | Losses | Draws
 =====================================================
@@ -34,6 +36,40 @@ my $HTMLFooter = << "EOT";
 </html>
 EOT
 
+sub ReadWarrior
+{
+	my $curwar = shift;
+	my $curWarName = "";
+	my $curWarAuth = "";
+	#print "Opening warrior $curwar\n";
+	open(WarriorFH, '<', $curwar) or die $!;
+	while(<WarriorFH>)
+	{
+		chomp;
+		if (lc(substr($_, 0, 5)) eq ";name")
+		{
+			$curWarName = substr($_, 6);
+		}
+		elsif (lc(substr($_, 0, 7)) eq ";author")
+		{
+			$curWarAuth = substr($_, 8);
+		}
+	}
+	close(WarriorFH);
+	if ($curWarName eq "")
+	{
+		$WarriorName{$curwar} = $curwar;
+	}
+	else
+	{
+		$WarriorName{$curwar} = $curWarName;
+	}
+	$WarriorAuthor{$curwar} = $curWarAuth;
+	$Wins{$curwar} = 0;
+	$Losses{$curwar} = 0;
+	$Draws{$curwar} = 0;
+}
+
 # Create the stats dir if non existing
 system("mkdir -p $StatsFileHtmlOutput");
 
@@ -45,10 +81,22 @@ print(OUTFH $TextHeader);
 open(OUTHTMLFH, '>', "$StatsFileHtmlOutput/index.html") or die $!;
 print(OUTHTMLFH $HTMLHeader);
 
+# Now do actual warrior testing
+my @Warriors = `$FindCmd`;
+chomp(@Warriors);
 foreach $CurWarrior (@Warriors)
 {
-	print(OUTFH "$warriorName | $WarriorAuthor | $Wins | $Losses | $Draws");
-	print(OUTHTMLFH "<tr><td>$warriorName</td><td>$WarriorAuthor</td><td>$Wins</td><td>$Losses</td><td>$Draws</td></tr>");
+	ReadWarrior($CurWarrior);
+}
+
+
+
+
+
+foreach $CurWarrior (@Warriors)
+{
+	print(OUTFH "$WarriorName{$CurWarrior} | $WarriorAuthor{$CurWarrior} | $Wins{$CurWarrior} | $Losses{$CurWarrior} | $Draws{$CurWarrior}\n");
+	print(OUTHTMLFH "<tr><td>$WarriorName{$CurWarrior}</td><td>$WarriorAuthor{$CurWarrior}</td><td>$Wins{$CurWarrior}</td><td>$Losses{$CurWarrior}</td><td>$Draws{$CurWarrior}</td></tr>\n");
 }
 
 close(OUTFH);
