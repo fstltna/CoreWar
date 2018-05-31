@@ -91,3 +91,11 @@ A core clear sequentially overwrites every instruction in the core, sometimes ev
 Redcode is the programming language used in Core War. It is executed by a virtual machine known as a Memory Array Redcode Simulator, or MARS. The design of Redcode is loosely based on actual CISC assembly languages of the early 1980s, but contains several features not usually found in actual computer systems.
 
 Both Redcode and the MARS environment are designed to provide a simple and abstract platform without the complexity of actual computers and processors. Although Redcode is meant to resemble an ordinary CISC assembly language, it differs in many ways from "real" assembly.
+
+**Server Leaderboard Setup**
+=======
+To generate the daily leaderboard you need to create a cron job like this:
+~~~~
+3 0 * * * /sbbs/doors/corewar/run_leaderboard.pl
+~~~~
+This will generate the leaderboard at 12:03 every morning.
