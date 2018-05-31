@@ -59,7 +59,8 @@ sub MainMenu
                                       '2', 'Debug  Warriors',
                                       '3', 'Battle Arena',
                                       '4', 'Test Bench',
-                                      '5', 'Battle Stats' ] );
+                                      '5', 'Battle Stats',
+                                      'q', 'Quit' ] );
 }
 
 sub GetWarriorVersion
@@ -429,7 +430,7 @@ sub BattleStats
 while (-1)
 {
 	MainMenu();
-	if (($menuselection eq "CANCEL") || ($menuselection eq "ESC") || ($menuselection eq ""))
+	if (($menuselection eq "CANCEL") || ($menuselection eq "ESC") || ($menuselection eq "") || ($menuselection eq "q"))
 	{
 		$d->msgbox( title => $enjoyedtitle, text => "Thanks for playing..." );
 		exit 0;
