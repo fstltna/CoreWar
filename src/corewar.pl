@@ -58,8 +58,7 @@ sub MainMenu
                             list => [ '1', 'Manage Warriors',
                                       '2', 'Debug  Warriors',
                                       '3', 'Battle Arena',
-                                      '4', 'Test Bench',
-                                      '5', 'Battle Stats',
+                                      '4', 'Battle Stats',
                                       'q', 'Quit' ] );
 }
 
@@ -448,10 +447,6 @@ while (-1)
 		BattleArena("Battle");
 	}
 	elsif ($menuselection eq "4")
-	{
-		BattleArena("Test");
-	}
-	elsif ($menuselection eq "5")
 	{
 		BattleStats();
 	}

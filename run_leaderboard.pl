@@ -171,8 +171,12 @@ foreach $CurWarrior (@Warriors)
 # Store data into tables
 foreach $CurWarrior (@Warriors)
 {
-	my $NameField = (substr($WarriorName{$CurWarrior} . "                          ", 0, 29));
-	my $AuthorField = (substr($WarriorAuthor{$CurWarrior} . "                          ", 0, 16));
+	$TempStr = $WarriorName{$CurWarrior};
+	$TempStr =~ s/^\s+|\s+$//g;
+	my $NameField = (substr($TempStr . "                          ", 0, 29));
+	$TempStr = $WarriorAuthor{$CurWarrior};
+	$TempStr =~ s/^\s+|\s+$//g;
+	my $AuthorField = (substr($TempStr . "                          ", 0, 16));
 	my $WinsField = (substr($Wins{$CurWarrior} . "                          ", 0, 4));
 	my $LossesField = (substr($Losses{$CurWarrior} . "                          ", 0, 4));
 	my $DrawField = (substr($Draws{$CurWarrior} . "                          ", 0, 4));
