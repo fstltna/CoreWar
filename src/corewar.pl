@@ -101,7 +101,7 @@ sub ReadWarrior
 	close(ROBOTFH);
 }
 
-sub ManageBots
+sub ManageWarriors
 {
 	my $selectwarrior = $d->fselect( title => "Select Your Warrior To Manage", path => "/sbbs/doors/corewar/players/$UserName" );
 	$selectwarrior =~ s/\s+/_/g;
@@ -155,7 +155,7 @@ END_MESSAGE
 	system ("$FileEditor \"$selectwarrior\"");
 }
 
-sub DebugBot
+sub DebugWarrior
 {
 	my $key = "";
 	my $selectwarrior = $d->fselect( title => "Select Your Warrior To Debug", path => "/sbbs/doors/corewar/players/$UserName" );
@@ -188,7 +188,7 @@ sub DebugBot
 		$d->msgbox( title => "Selected Warrior:", text => "Warrior must exist, aborting..." );
 		return;
 	}
-	# Debug the bot
+	# Debug the warrior
 	my $GameCommand = "$CorewarExe -e \"$selectwarrior\"";
 	system($GameCommand);
 	print "--- Press Any Key To Continue ---\n";
@@ -198,7 +198,7 @@ sub DebugBot
 		# No key yet
 	}
 	ReadMode 0; # Reset tty mode before exiting
-	#$d->msgbox( title => "Debug Completed", text => "Completed debugging this bot..." ); # ZZZ
+	#$d->msgbox( title => "Debug Completed", text => "Completed debugging this warrior..." ); # ZZZ
 }
 
 sub BattleArena
@@ -228,10 +228,10 @@ sub BattleArena
 
 	my @ActiveWarriors = ();
 	my @ActiveWarriorsFull = ();
-	my $AddedBots = 0;
+	my $AddedWarriors = 0;
 	foreach my $CurWarrior (@selection1)
 	{
-		if ($AddedBots < 3)
+		if ($AddedWarriors < 3)
 		{
 			if ($CurWarrior == 1)
 			{
@@ -273,10 +273,10 @@ sub BattleArena
 				push (@ActiveWarriors, "validate.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/validate.red");
 			}
-			$AddedBots++;
+			$AddedWarriors++;
 		}
 	}
-	if ($AddedBots > 0)
+	if ($AddedWarriors > 0)
 	{
 		$d->msgbox( title => "You have selected these training warriors:", text => "@ActiveWarriors" );
 	}
@@ -285,10 +285,10 @@ sub BattleArena
 		$d->msgbox( title => "You have selected these training warriors:", text => "No Training Warriors Selected" );
 	}
 	my $NotAbort = -1;
-	while (($AddedBots < 3) && $NotAbort)
+	while (($AddedWarriors < 3) && $NotAbort)
 	{
-		#my $selectwarrior = $d->fselect( title => "Select Your or Other Player Bots:", path => "/sbbs/doors/corewar/players/$UserName" );
-		my $selectwarrior = $d->fselect( title => "Select Your or Other Player Bots:", path => "/sbbs/doors/corewar/players/" );
+		#my $selectwarrior = $d->fselect( title => "Select Your or Other Player Warriors:", path => "/sbbs/doors/corewar/players/$UserName" );
+		my $selectwarrior = $d->fselect( title => "Select Your or Other Player Warriors:", path => "/sbbs/doors/corewar/players/" );
 		$selectwarrior =~ s/\s+/_/g;
 		$selectwarrior =~ s/</_/g;
 		$selectwarrior =~ s/>/_/g;
@@ -314,13 +314,13 @@ sub BattleArena
 				}
 				else
 				{
-					$AddedBots++;
+					$AddedWarriors++;
 					push (@ActiveWarriorsFull, $selectwarrior);
 				}
 			}
 		}
 	}
-	my $selectwarrior = $d->fselect( title => "Select Your Bot To Be Ranked:", path => "/sbbs/doors/corewar/players/$UserName" );
+	my $selectwarrior = $d->fselect( title => "Select Your Warrior To Be Ranked:", path => "/sbbs/doors/corewar/players/$UserName" );
 	$selectwarrior =~ s/\s+/_/g;
 	$selectwarrior =~ s/</_/g;
 	$selectwarrior =~ s/>/_/g;
@@ -349,9 +349,9 @@ sub BattleArena
 	}
 	# Execute the game
 	my $GameCommand = "$CorewarExe -b -o \"$selectwarrior\"";
-	foreach my $curbot (@ActiveWarriorsFull)
+	foreach my $curwarrior (@ActiveWarriorsFull)
 	{
-		$GameCommand = sprintf("%s \"%s\"", $GameCommand, $curbot);
+		$GameCommand = sprintf("%s \"%s\"", $GameCommand, $curwarrior);
 	}
 	system($GameCommand);
 	print "--- Press Any Key To Continue ---\n";
@@ -380,7 +380,7 @@ sub BattleArena
 		$d->msgbox( title => "Game Progress:", text => "Game results not being saved..." );
 		return;
 	}
-	# Read In Bot Details
+	# Read In Warrior Details
 	ReadWarrior($selectwarrior);
 	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
 	$year += 1900;
@@ -442,11 +442,11 @@ while (-1)
 	}
 	if ($menuselection eq "1")
 	{
-		ManageBots();
+		ManageWarriors();
 	}
 	elsif ($menuselection eq "2")
 	{
-		DebugBot();
+		DebugWarrior();
 	}
 	elsif ($menuselection eq "3")
 	{
