@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 #
+
+use String::Scanf;
+
 # Creates the status table for CoreWar
 my $StatsFileOutput = "/sbbs/doors/corewar/stats.txt";
 my $StatsFileHtmlOutput = "/var/www/html/corewar";
@@ -17,12 +20,16 @@ my %Wins;
 my %Losses;
 my %Draws;
 my $FindCmd = "/usr/bin/find $WarriorDir -print|/bin/grep -v Olympus|/bin/grep \.red";
+my $now_string = localtime;
+
 my $TextHeader = << "EOT";
 CoreWar Leaderboard
 Rounds per game: $Rounds
 
-Warrior Name                  | Warrior Author       | Wins | Loss | Draw
-============================================================================
+Last Update: $now_string
+
+Warrior Name                  | Warrior Author   | Wins | Loss | Draw | Err
+===========================================================================
 EOT
 
 my $HTMLHeader = << "EOT";
@@ -33,7 +40,9 @@ my $HTMLHeader = << "EOT";
 </head>
 <body>
 <h1 align=center>CoreWar Leaderboard</h1>
+<p align=center>Last Update: $now_string</p>
 <p align=center>Rounds per game: $Rounds</p>
+<p align=center>Click Field Name To Sort</p>
 <table class="sortable" border=1 align=center>
 <tr bgcolor=\"#DDDDDD\"><td>Warrior Name</td><td>Warrior Author</td><td>Wins</td><td>Losses</td><td>Draw</td><td>Errors</td></tr>
 EOT
@@ -125,15 +134,36 @@ print "Compiled $NumCompiled warriors\n";
 # Run the battles
 foreach $CurWarrior (@Warriors)
 {
-	# Make sure bot had no errors
+	# Make sure warrior had no errors
 	if ($WarriorError{$CurWarrior} == 0)
 	{
-		#print "Working on $CurWarrior\n";
-		my @BattleResults = `$CorewarExe -r $Rounds -b $CurWarrior 2>/dev/null`;
-		chomp(@BattleResults);
-		foreach $CurResult (@BattleResults)
+		foreach $CurChallenger (@Warriors)
 		{
-			print "Results: $CurResult\n";
+			if (($CurWarrior ne $CurChallenger) && ($WarriorError{$CurChallenger} == 0))
+			{
+				#print "Working on $CurWarrior\n";
+				my @BattleResults = `$CorewarExe -r $Rounds -b $CurWarrior $CurChallenger 2>/dev/null`;
+				chomp(@BattleResults);
+				foreach $CurResult (@BattleResults)
+				{
+					my $FirstLine = 1;
+					if (substr($CurResult, 0, 8) ne "Results:")
+					{
+						($a) = sscanf(" scores %d", $CurResult);
+						#print "Results: $CurResult $a\n";
+						if ($FirstLine == 1)
+						{
+							$FirstLine = 0;
+							$Wins{$CurWarrior} += $a;
+						}
+						else
+						{
+							$Wins{$CurChallenger} += $a;
+						}
+					}
+				}
+			}
+#			my $foo = getc();
 		}
 	}
 }
@@ -142,10 +172,14 @@ foreach $CurWarrior (@Warriors)
 foreach $CurWarrior (@Warriors)
 {
 	my $NameField = (substr($WarriorName{$CurWarrior} . "                          ", 0, 29));
-	my $AuthorField = (substr($WarriorAuthor{$CurWarrior} . "                          ", 0, 20));
+	my $AuthorField = (substr($WarriorAuthor{$CurWarrior} . "                          ", 0, 16));
 	my $WinsField = (substr($Wins{$CurWarrior} . "                          ", 0, 4));
 	my $LossesField = (substr($Losses{$CurWarrior} . "                          ", 0, 4));
-	print(OUTFH "$NameField | $AuthorField | $WinsField | $LossesField | $Draws{$CurWarrior}\n");
+	my $DrawField = (substr($Draws{$CurWarrior} . "                          ", 0, 4));
+	my $ErrorsField = (substr($Losses{$CurWarrior} . "                          ", 0, 2));
+	my $TrimmedErrors = $WarriorError{$CurWarrior};
+	$TrimmedErrors =~ s/^\s+|\s+$//g;
+	print(OUTFH "$NameField | $AuthorField | $WinsField | $LossesField | $DrawField | $TrimmedErrors\n");
 	print(OUTHTMLFH "<tr><td>$WarriorName{$CurWarrior}</td><td>$WarriorAuthor{$CurWarrior}</td><td>$Wins{$CurWarrior}</td><td>$Losses{$CurWarrior}</td><td>$Draws{$CurWarrior}</td><td>$WarriorError{$CurWarrior}</td></tr>\n");
 }
 
