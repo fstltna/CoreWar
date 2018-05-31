@@ -129,14 +129,27 @@ sub ManageBots
 	# Does selection exist?
 	if (! -f "$selectwarrior")
 	{
-		# no
+		# no, creating the warrior
+		my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+		my @abbr = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+		$year += 1900;
+		my $DateString = "$abbr[$mon] $mday, $year";
 		my $WarriorNamePos = rindex($selectwarrior, '/');
 		my $WarriorName = substr($selectwarrior, $WarriorNamePos + 1);
 		$d->msgbox( title => "Selected Warrior:", text => "Warrior \"$selectwarrior\" will be created..." );
 		open(MYFH, '>', $selectwarrior) or die $!;
-		print MYFH "/* Version: 1.0 */\n";
-		print MYFH "/* WarriorName: $WarriorName */\n";
-		print MYFH "/* Owner: $UserName */\n";
+		my $message = <<"END_MESSAGE";
+;redcode-94
+;name $WarriorName
+;author $UserName
+;strategy ** Put your strategy description here **
+;history 1a - Put your revision history here
+;date $DateString
+;planar boot, other
+;assert CORESIZE == 8000
+
+END_MESSAGE
+		print(MYFH $message);
 		close(MYFH);
 	}
 	system ("$FileEditor \"$selectwarrior\"");
