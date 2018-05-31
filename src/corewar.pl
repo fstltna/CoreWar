@@ -262,7 +262,7 @@ sub BattleArena
 	}
 	else
 	{
-		$d->msgbox( title => "You have selected these training warriors:", text => "No Warriors Selected" );
+		$d->msgbox( title => "You have selected these training warriors:", text => "No Training Warriors Selected" );
 	}
 	my $NotAbort = -1;
 	while (($AddedBots < 3) && $NotAbort)
@@ -274,7 +274,7 @@ sub BattleArena
 		$selectwarrior =~ s/>/_/g;
 		if ($d->state() ne "OK")
 		{
-			$d->msgbox( title => "Selected Warrior:", text => "No warrior selected..." );
+			$d->msgbox( title => "Selected Warrior:", text => "No other player's warrior(s) selected..." );
 			$NotAbort = 0;
 		}
 		else
@@ -328,7 +328,7 @@ sub BattleArena
 		return;
 	}
 	# Execute the game
-	my $GameCommand = "$CorewarExe \"$selectwarrior\"";
+	my $GameCommand = "$CorewarExe -b -o \"$selectwarrior\"";
 	foreach my $curbot (@ActiveWarriorsFull)
 	{
 		$GameCommand = sprintf("%s \"%s\"", $GameCommand, $curbot);
