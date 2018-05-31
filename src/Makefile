@@ -68,8 +68,8 @@ install:
 	cp ../warriors/* /sbbs/doors/corewar/warriors
 	mkdir -p /sbbs/doors/corewar/doc
 	cp -r ../doc/* /sbbs/doors/corewar/doc
-	mkdir -p /sbbs/doors/corewar/players/offsite
-	cp -r ../offsite/* /sbbs/doors/corewar/players/offsite
+	mkdir -p /sbbs/doors/corewar/players
+	cp -r ../offsite/* /sbbs/doors/corewar/players
 	cp pmars /sbbs/doors/corewar/
 	cp corewar.pl /sbbs/doors/corewar/
 	cp ../README_BBS.md ../README_BBS.pdf /sbbs/doors/corewar
