@@ -7,6 +7,7 @@ my $CorewarExe = "/sbbs/doors/corewar/pmars";
 my $WarriorDir = "/sbbs/doors/corewar/players";
 
 # No changes below here...
+
 my @Warriors = ();
 my %WarriorName;
 my %WarriorAuthor;
@@ -73,6 +74,8 @@ sub ReadWarrior
 
 # Create the stats dir if non existing
 system("mkdir -p $StatsFileHtmlOutput");
+system("cp sorttable.js $StatsFileHtmlOutput");
+
 
 # Open up text output file
 open(OUTFH, '>', $StatsFileOutput) or die $!;
