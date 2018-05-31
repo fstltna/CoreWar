@@ -217,13 +217,12 @@ sub BattleArena
 	}
 	my @selection1 = $d->checklist( title => "Select Testing Warriors", text => 'Select up to 3: (If you choose more than 3 only first 3 will be used)',
                                  list => [ '1', [ 'aeka.red', 0 ],
-                                           '2', [ 'bubbly_short.red', 0 ],
-                                           '3', [ 'fern.red', 0 ],
-                                           '4', [ 'flashpaper.red', 0 ],
-                                           '5', [ 'pspace.red', 1 ],
-                                           '6', [ 'rave.red', 1 ],
-                                           '7', [ 'shelter.red', 1 ],
-                                           '8', [ 'validate.red', 1 ] ]
+                                           '2', [ 'fern.red', 0 ],
+                                           '3', [ 'flashpaper.red', 0 ],
+                                           '4', [ 'pspace.red', 1 ],
+                                           '5', [ 'rave.red', 1 ],
+                                           '6', [ 'shelter.red', 1 ],
+                                           '7', [ 'validate.red', 1 ] ]
                                );
 
 	my @ActiveWarriors = ();
@@ -240,35 +239,30 @@ sub BattleArena
 			}
 			elsif ($CurWarrior == 2)
 			{
-				push (@ActiveWarriors, "bubbly_short.red");
-				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/bubbly_short.red");
-			}
-			elsif ($CurWarrior == 3)
-			{
 				push (@ActiveWarriors, "fern.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/fern.red");
 			}
-			elsif ($CurWarrior == 4)
+			elsif ($CurWarrior == 3)
 			{
 				push (@ActiveWarriors, "flashpaper.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/flashpaper.red");
 			}
-			elsif ($CurWarrior == 5)
+			elsif ($CurWarrior == 4)
 			{
 				push (@ActiveWarriors, "pspace.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/pspace.red");
 			}
-			elsif ($CurWarrior == 6)
+			elsif ($CurWarrior == 5)
 			{
 				push (@ActiveWarriors, "rave.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/rave.red");
 			}
-			elsif ($CurWarrior == 7)
+			elsif ($CurWarrior == 6)
 			{
 				push (@ActiveWarriors, "shelter.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/shelter.red");
 			}
-			elsif ($CurWarrior == 8)
+			elsif ($CurWarrior == 7)
 			{
 				push (@ActiveWarriors, "validate.red");
 				push (@ActiveWarriorsFull, "/sbbs/doors/corewar/warriors/validate.red");
