@@ -7,10 +7,11 @@ my $CorewarExe = "/sbbs/doors/corewar/pmars";
 
 # No changes below here...
 my @Warriors = ();
-#my $WarriorName{} = "";
-#my $Wins{} = "";
-#my $Losses{} = "";
-#my $Draws{} = "";
+my %WarriorName;
+my %WarriorAuthor;
+my %Wins;
+my %Losses;
+my %Draws;
 my $TextHeader = << "EOT";
 Warrior Name | Warrior Author | Wins | Losses | Draws
 =====================================================
@@ -24,7 +25,7 @@ my $HTMLHeader = << "EOT";
 <body>
 <h1 align=center>CoreWar Leaderboard</h1>
 <table border=1>
-<tr bgcolor=\"#FFFF00\"><td>Warrior Name</td><td>Warrior Author</td><td>Wins</td><td>Losses</td><td>Draw</td></tr>
+<tr bgcolor=\"#DDDDDD\"><td>Warrior Name</td><td>Warrior Author</td><td>Wins</td><td>Losses</td><td>Draw</td></tr>
 EOT
 
 my $HTMLFooter = << "EOT";
