@@ -12,6 +12,7 @@ my $Rounds = 10;
 my @Warriors = ();
 my %WarriorName;
 my %WarriorAuthor;
+my %WarriorError;
 my %Wins;
 my %Losses;
 my %Draws;
@@ -34,7 +35,7 @@ my $HTMLHeader = << "EOT";
 <h1 align=center>CoreWar Leaderboard</h1>
 <p align=center>Rounds per game: $Rounds</p>
 <table class="sortable" border=1 align=center>
-<tr bgcolor=\"#DDDDDD\"><td>Warrior Name</td><td>Warrior Author</td><td>Wins</td><td>Losses</td><td>Draw</td></tr>
+<tr bgcolor=\"#DDDDDD\"><td>Warrior Name</td><td>Warrior Author</td><td>Wins</td><td>Losses</td><td>Draw</td><td>Errors</td></tr>
 EOT
 
 my $HTMLFooter = << "EOT";
@@ -72,6 +73,7 @@ sub ReadWarrior
 		$WarriorName{$curwar} = $curWarName;
 	}
 	$WarriorAuthor{$curwar} = $curWarAuth;
+	$WarriorError{$curwar} = 0;
 	$Wins{$curwar} = 0;
 	$Losses{$curwar} = 0;
 	$Draws{$curwar} = 0;
@@ -93,15 +95,42 @@ print(OUTHTMLFH $HTMLHeader);
 # Now do actual warrior testing
 my @Warriors = `$FindCmd`;
 chomp(@Warriors);
+
+# Read in all warriors data
 foreach $CurWarrior (@Warriors)
 {
 	ReadWarrior($CurWarrior);
+	print "Compiling $CurWarrior\n";
+	my @CompileResults = `$CorewarExe -b $CurWarrior 2>&1`;
+	chomp(@CompileResults);
+	my $NumErrors = 0;
+	foreach $CurCompile (@CompileResults)
+	{
+		print "results: $CurCompile\n";
+		if (substr($CurCompile, 0, 16) eq "Number of errors")
+		{
+			$NumErrors = substr($CurCompile, 17);
+		}
+	}
+	$WarriorError{$CurWarrior} = $NumErrors;
 }
 
+# Run the battles
+foreach $CurWarrior (@Warriors)
+{
+	if ($WarriorError{$CurWarrior} == 0)
+	{
+		print "Working on $CurWarrior\n";
+		my @BattleResults = `$CorewarExe -r $Rounds -b $CurWarrior 2>/dev/null`;
+		chomp(@BattleResults);
+		foreach $CurResult (@BattleResults)
+		{
+			print "\tResults: $CurResult\n";
+		}
+	}
+}
 
-
-
-
+# Store data into tables
 foreach $CurWarrior (@Warriors)
 {
 	my $NameField = (substr($WarriorName{$CurWarrior} . "                          ", 0, 29));
@@ -109,7 +138,7 @@ foreach $CurWarrior (@Warriors)
 	my $WinsField = (substr($Wins{$CurWarrior} . "                          ", 0, 4));
 	my $LossesField = (substr($Losses{$CurWarrior} . "                          ", 0, 4));
 	print(OUTFH "$NameField | $AuthorField | $WinsField | $LossesField | $Draws{$CurWarrior}\n");
-	print(OUTHTMLFH "<tr><td>$WarriorName{$CurWarrior}</td><td>$WarriorAuthor{$CurWarrior}</td><td>$Wins{$CurWarrior}</td><td>$Losses{$CurWarrior}</td><td>$Draws{$CurWarrior}</td></tr>\n");
+	print(OUTHTMLFH "<tr><td>$WarriorName{$CurWarrior}</td><td>$WarriorAuthor{$CurWarrior}</td><td>$Wins{$CurWarrior}</td><td>$Losses{$CurWarrior}</td><td>$Draws{$CurWarrior}</td><td>$WarriorError{$CurWarrior}</td></tr>\n");
 }
 
 close(OUTFH);
