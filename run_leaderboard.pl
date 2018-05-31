@@ -3,9 +3,14 @@
 # Creates the status table for CoreWar
 my $StatsFileOutput = "/sbbs/doors/corewar/stats.txt";
 my $StatsFileHtmlOutput = "/var/www/html/corewar";
+my $CorewarExe = "/sbbs/doors/corewar/pmars";
 
 # No changes below here...
-
+my @Warriors = ();
+#my $WarriorName{} = "";
+#my $Wins{} = "";
+#my $Losses{} = "";
+#my $Draws{} = "";
 my $TextHeader = << "EOT";
 Warrior Name | Warrior Author | Wins | Losses | Draws
 =====================================================
