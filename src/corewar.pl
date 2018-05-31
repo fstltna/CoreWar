@@ -15,8 +15,6 @@ my $CorewarExe = "/sbbs/doors/corewar/pmars";
 ###################################################
 
 my $CR_ver = "0.7";
-my $Record = "false";	# Are results saved?
-my $TempDir = "/tmp";
 my $WarriorName = "";
 my $WarriorVersion = "";
 
@@ -198,23 +196,11 @@ sub DebugWarrior
 		# No key yet
 	}
 	ReadMode 0; # Reset tty mode before exiting
-	#$d->msgbox( title => "Debug Completed", text => "Completed debugging this warrior..." ); # ZZZ
 }
 
 sub BattleArena
 {
 	my $key = "";
-	my $Mode = shift;
-	if ($Mode eq "Battle")
-	{
-		#$d->msgbox( title => "Chose battle mode", text => "battle on" );
-		$Record = "true";
-	}
-	else
-	{
-		#$d->msgbox( title => "Chose practice mode", text => "testing on" );
-		$Record = "false";
-	}
 	my @selection1 = $d->checklist( title => "Select Testing Warriors", text => 'Select up to 3: (If you choose more than 3 only first 3 will be used)',
                                  list => [ '1', [ 'aeka.red', 0 ],
                                            '2', [ 'fern.red', 0 ],
@@ -282,7 +268,7 @@ sub BattleArena
 	while (($AddedWarriors < 3) && $NotAbort)
 	{
 		#my $selectwarrior = $d->fselect( title => "Select Your or Other Player Warriors:", path => "/sbbs/doors/corewar/players/$UserName" );
-		my $selectwarrior = $d->fselect( title => "Select Your or Other Player Warriors:", path => "/sbbs/doors/corewar/players/" );
+		my $selectwarrior = $d->fselect( title => "Select Other Player Warriors:", path => "/sbbs/doors/corewar/players/" );
 		$selectwarrior =~ s/\s+/_/g;
 		$selectwarrior =~ s/</_/g;
 		$selectwarrior =~ s/>/_/g;
@@ -329,11 +315,6 @@ sub BattleArena
 		return;
 	}
 	my $PathString = "/sbbs/doors/corewar/players/$UserName";
-	if (substr($selectwarrior, 0, length($PathString)) ne $PathString)
-	{
-		$d->msgbox( title => "Selected Warrior:", text => "Can only rank warriors you own, aborting..." );
-		return;
-	}
 	# Does selection exist?
 	if (! -f "$selectwarrior")
 	{
@@ -355,40 +336,6 @@ sub BattleArena
 		# No key yet
 	}
 	ReadMode 0; # Reset tty mode before exiting
-	#$d->msgbox( title => "Game Progress:", text => "Combat Terminated..." ); # ZZZ
-	# Check results
-	if ($? == 1)
-	{
-		# Command failed - no saving
-		$d->msgbox( title => "Game Progress:", text => "Game Aborted..." );
-		return;
-	}
-	my $DidWin = 1;
-	if ($? > 9)
-	{
-		$DidWin = 0;
-	}
-	if ($Record eq "false")
-	{
-		# Not saving results
-		$d->msgbox( title => "Game Progress:", text => "Game results not being saved..." );
-		return;
-	}
-	# Read In Warrior Details
-	ReadWarrior($selectwarrior);
-	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
-	$year += 1900;
-	$mon += 1;
-	my $TempOut = "$TempDir/corewar-$year-$mon-$mday-$hour-$min-$sec";
-	my $GameDate = sprintf("%04d%02d%02d", $year, $mon, $mday);
-	open(MYFH, '>', $TempOut) or die "Could not create file '$TempOut' $!";
-	print MYFH "Player=$UserName
-WarriorName=$WarriorName
-WarriorVersion=$WarriorVersion
-NumWins=$DidWin
-GameDate=$GameDate
-NumBattles=1\n";
-	close(MYFH);
 }
 
 sub BattleStats
