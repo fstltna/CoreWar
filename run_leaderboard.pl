@@ -96,36 +96,44 @@ print(OUTHTMLFH $HTMLHeader);
 my @Warriors = `$FindCmd`;
 chomp(@Warriors);
 
+my $NumCompiled = 0;
+
 # Read in all warriors data
 foreach $CurWarrior (@Warriors)
 {
 	ReadWarrior($CurWarrior);
-	print "Compiling $CurWarrior\n";
+	#print "Compiling $CurWarrior\n";
 	my @CompileResults = `$CorewarExe -b $CurWarrior 2>&1`;
 	chomp(@CompileResults);
 	my $NumErrors = 0;
 	foreach $CurCompile (@CompileResults)
 	{
-		print "results: $CurCompile\n";
+		#print "results: $CurCompile\n";
 		if (substr($CurCompile, 0, 16) eq "Number of errors")
 		{
 			$NumErrors = substr($CurCompile, 17);
 		}
 	}
 	$WarriorError{$CurWarrior} = $NumErrors;
+	if ($NumErrors == 0)
+	{
+		$NumCompiled++;
+	}
 }
+print "Compiled $NumCompiled warriors\n";
 
 # Run the battles
 foreach $CurWarrior (@Warriors)
 {
+	# Make sure bot had no errors
 	if ($WarriorError{$CurWarrior} == 0)
 	{
-		print "Working on $CurWarrior\n";
+		#print "Working on $CurWarrior\n";
 		my @BattleResults = `$CorewarExe -r $Rounds -b $CurWarrior 2>/dev/null`;
 		chomp(@BattleResults);
 		foreach $CurResult (@BattleResults)
 		{
-			print "\tResults: $CurResult\n";
+			print "Results: $CurResult\n";
 		}
 	}
 }
