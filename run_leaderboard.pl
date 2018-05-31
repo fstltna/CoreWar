@@ -5,6 +5,7 @@ my $StatsFileOutput = "/sbbs/doors/corewar/stats.txt";
 my $StatsFileHtmlOutput = "/var/www/html/corewar";
 my $CorewarExe = "/sbbs/doors/corewar/pmars";
 my $WarriorDir = "/sbbs/doors/corewar/players";
+my $Rounds = 10;
 
 # No changes below here...
 
@@ -16,6 +17,9 @@ my %Losses;
 my %Draws;
 my $FindCmd = "/usr/bin/find $WarriorDir -print|/bin/grep -v Olympus|/bin/grep \.red";
 my $TextHeader = << "EOT";
+CoreWar Leaderboard
+Rounds per game: $Rounds
+
 Warrior Name                  | Warrior Author       | Wins | Loss | Draw
 ============================================================================
 EOT
@@ -28,7 +32,8 @@ my $HTMLHeader = << "EOT";
 </head>
 <body>
 <h1 align=center>CoreWar Leaderboard</h1>
-<table class="sortable" border=1>
+<p align=center>Rounds per game: $Rounds</p>
+<table class="sortable" border=1 align=center>
 <tr bgcolor=\"#DDDDDD\"><td>Warrior Name</td><td>Warrior Author</td><td>Wins</td><td>Losses</td><td>Draw</td></tr>
 EOT
 
