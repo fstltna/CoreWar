@@ -55,8 +55,8 @@ my $menuselection = "";
 sub MainMenu
 {
 	$menuselection = $d->menu( title => 'Main Menu', text => 'Select one:',
-                            list => [ '1', 'Manage Your Warriors',
-                                      '2', 'Debug Your Warriors',
+                            list => [ '1', 'Manage Warriors',
+                                      '2', 'Debug  Warriors',
                                       '3', 'Battle Arena',
                                       '4', 'Test Bench',
                                       '5', 'Battle Stats' ] );
