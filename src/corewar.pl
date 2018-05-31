@@ -28,6 +28,7 @@ if (!$UserName)
 
 # Create the users dir if non existing
 system("mkdir -p /sbbs/doors/corewar/players/$UserName");
+system("chmod -R 755 /sbbs/doors/corewar/players/$UserName");
 
 my $d = new UI::Dialog ( backtitle => "CoreWar Version v$CR_ver", height => 20, width => 65, listheight => 5,
 	order => [ 'ascii', 'cdialog', 'xdialog' ]);
@@ -300,7 +301,7 @@ sub BattleArena
 			}
 		}
 	}
-	my $selectwarrior = $d->fselect( title => "Select Your Warrior To Be Ranked:", path => "/sbbs/doors/corewar/players/$UserName" );
+	my $selectwarrior = $d->fselect( title => "Select Your Warrior To Be Tested:", path => "/sbbs/doors/corewar/players/$UserName" );
 	$selectwarrior =~ s/\s+/_/g;
 	$selectwarrior =~ s/</_/g;
 	$selectwarrior =~ s/>/_/g;
