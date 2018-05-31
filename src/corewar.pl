@@ -175,9 +175,11 @@ sub DebugBot
 		return;
 	}
 	# Debug the bot
-	my $GameCommand = "$CorewarExe -d \"$selectwarrior\"";
+	my $GameCommand = "$CorewarExe -e \"$selectwarrior\"";
 	system($GameCommand);
-	$d->msgbox( title => "Debug Completed", text => "Completed debugging this bot..." );
+	print "--- Press Enter Key To Continue ---\n";
+	my $key = getc(STDIN);
+	#$d->msgbox( title => "Debug Completed", text => "Completed debugging this bot..." ); # ZZZ
 }
 
 sub BattleArena
@@ -332,6 +334,9 @@ sub BattleArena
 		$GameCommand = sprintf("%s \"%s\"", $GameCommand, $curbot);
 	}
 	system($GameCommand);
+	print "--- Press Enter Key To Continue ---\n";
+	my $key = getc(STDIN);
+	#$d->msgbox( title => "Game Progress:", text => "Combat Terminated..." ); # ZZZ
 	# Check results
 	if ($? == 1)
 	{
