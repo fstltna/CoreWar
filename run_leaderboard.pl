@@ -15,8 +15,8 @@ my %Losses;
 my %Draws;
 my $FindCmd = "/usr/bin/find $WarriorDir -print|/bin/grep -v Olympus|/bin/grep \.red";
 my $TextHeader = << "EOT";
-Warrior Name | Warrior Author | Wins | Losses | Draws
-=====================================================
+Warrior Name                  | Warrior Author       | Wins | Loss | Draw
+============================================================================
 EOT
 
 my $HTMLHeader = << "EOT";
@@ -95,7 +95,11 @@ foreach $CurWarrior (@Warriors)
 
 foreach $CurWarrior (@Warriors)
 {
-	print(OUTFH "$WarriorName{$CurWarrior} | $WarriorAuthor{$CurWarrior} | $Wins{$CurWarrior} | $Losses{$CurWarrior} | $Draws{$CurWarrior}\n");
+	my $NameField = (substr($WarriorName{$CurWarrior} . "                          ", 0, 29));
+	my $AuthorField = (substr($WarriorAuthor{$CurWarrior} . "                          ", 0, 20));
+	my $WinsField = (substr($Wins{$CurWarrior} . "                          ", 0, 4));
+	my $LossesField = (substr($Losses{$CurWarrior} . "                          ", 0, 4));
+	print(OUTFH "$NameField | $AuthorField | $WinsField | $LossesField | $Draws{$CurWarrior}\n");
 	print(OUTHTMLFH "<tr><td>$WarriorName{$CurWarrior}</td><td>$WarriorAuthor{$CurWarrior}</td><td>$Wins{$CurWarrior}</td><td>$Losses{$CurWarrior}</td><td>$Draws{$CurWarrior}</td></tr>\n");
 }
 
