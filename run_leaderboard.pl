@@ -209,12 +209,12 @@ foreach $CurWarrior (@Warriors)
 	print(OUTFH "$NameField | $AuthorField | $WinsField | $LossesField | $DrawField | $TrimmedErrors\n");
 	print(OUTHTMLFH "<tr><td>$WarriorName{$CurWarrior}$WebsiteField</td><td>$WarriorAuthor{$CurWarrior}$EmailField</td><td>$Wins{$CurWarrior}</td><td>$Losses{$CurWarrior}</td><td>$Draws{$CurWarrior}</td><td>$WarriorError{$CurWarrior}</td></tr>\n");
 }
-print(OUTFH "Saw $SeenWarriors total warriors\n");
+print(OUTFH "Successfully compiled $NumCompiled out of $SeenWarriors total warriors\n");
 
 close(OUTFH);
 my $HTMLFooter = << "EOT";
 </table>
-<p>Saw $SeenWarriors total warriors</p>
+<p>Successfully compiled $NumCompiled out of $SeenWarriors total warriors</p>
 </body>
 </html>
 EOT
