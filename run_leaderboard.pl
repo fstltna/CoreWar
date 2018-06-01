@@ -21,6 +21,8 @@ my %WarriorError;
 my %Wins;
 my %Losses;
 my %Draws;
+my $SeenWarriors = 0;
+
 my $FindCmd = "/usr/bin/find $WarriorDir -print|/bin/grep -v Olympus|/bin/grep \.red";
 my $now_string = localtime;
 
@@ -47,12 +49,6 @@ my $HTMLHeader = << "EOT";
 <p align=center>Click Field Name To Sort</p>
 <table class="sortable" border=1 align=center>
 <tr bgcolor=\"#DDDDDD\"><td>Warrior Name</td><td>Warrior Author</td><td>Wins</td><td>Losses</td><td>Draw</td><td>Errors</td></tr>
-EOT
-
-my $HTMLFooter = << "EOT";
-</table>
-</body>
-</html>
 EOT
 
 sub ReadWarrior
@@ -100,6 +96,7 @@ sub ReadWarrior
 	$Wins{$curwar} = 0;
 	$Losses{$curwar} = 0;
 	$Draws{$curwar} = 0;
+	$SeenWarriors++;
 }
 
 # Create the stats dir if non existing
@@ -212,8 +209,15 @@ foreach $CurWarrior (@Warriors)
 	print(OUTFH "$NameField | $AuthorField | $WinsField | $LossesField | $DrawField | $TrimmedErrors\n");
 	print(OUTHTMLFH "<tr><td>$WarriorName{$CurWarrior}$WebsiteField</td><td>$WarriorAuthor{$CurWarrior}$EmailField</td><td>$Wins{$CurWarrior}</td><td>$Losses{$CurWarrior}</td><td>$Draws{$CurWarrior}</td><td>$WarriorError{$CurWarrior}</td></tr>\n");
 }
+print(OUTFH "Saw $SeenWarriors total warriors\n");
 
 close(OUTFH);
+my $HTMLFooter = << "EOT";
+</table>
+<p>Saw $SeenWarriors total warriors</p>
+</body>
+</html>
+EOT
 print(OUTHTMLFH $HTMLFooter);
 close(OUTHTMLFH);
 exit 0;
