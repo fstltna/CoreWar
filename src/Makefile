@@ -23,6 +23,7 @@ LIB = -lcurses				# enable this one for curses display
 # LIB = -lcurses -ltermlib		# enable this one for curses display
 # LIB = -lvgagl -lvga			# enable this one for Linux/SVGA
 #LIB = -L/usr/X11R6/lib -lX11		# enable this one for X11
+COREUSER = ftn
 
 .SUFFIXES: .o .c .c~ .man .doc .6
 MAINFILE = pmars
@@ -76,4 +77,5 @@ install:
 	cp ../sorttable.js /sbbs/doors/corewar/
 	cp ../README_BBS.md ../README_BBS.pdf /sbbs/doors/corewar
 	touch /sbbs/doors/corewar/stats.txt
+	chown -R $(COREUSER):$(COREUSER) /sbbs/doors/corewar
 
