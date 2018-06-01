@@ -146,7 +146,7 @@ sub ManageWarriors
 ;date $DateString
 ;planar boot, other
 ;assert CORESIZE == 8000
-;email your@email.address
+;email your\@email.address
 ;website http://yourwebsite.com
 END_MESSAGE
 		print(MYFH $message);
