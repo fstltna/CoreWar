@@ -105,11 +105,11 @@ system("cp /sbbs/doors/corewar/sorttable.js $StatsFileHtmlOutput");
 
 
 # Open up text output file
-open(OUTFH, '>', $StatsFileOutput) or die $!;
+open(OUTFH, '>', "$StatsFileOutput.build") or die $!;
 print(OUTFH $TextHeader);
 
 # Open up html output file
-open(OUTHTMLFH, '>', "$StatsFileHtmlOutput/index.html") or die $!;
+open(OUTHTMLFH, '>', "$StatsFileHtmlOutput/index.html.build") or die $!;
 print(OUTHTMLFH $HTMLHeader);
 
 # Now do actual warrior testing
@@ -220,4 +220,8 @@ my $HTMLFooter = << "EOT";
 EOT
 print(OUTHTMLFH $HTMLFooter);
 close(OUTHTMLFH);
+
+# Now move the output into position
+system("mv $StatsFileOutput.build $StatsFileOutput");
+system("mv $StatsFileHtmlOutput/index.html.build $StatsFileHtmlOutput/index.html");
 exit 0;
